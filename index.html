@@ -37,10 +37,10 @@ p{margin:0}
 
 .app{container:app / inline-size;flex:1;min-width:0;display:flex;flex-direction:column;position:relative;overflow:hidden;background:var(--canvas)}
 .top{display:flex;align-items:center;gap:14px;padding:16px 28px 6px;max-width:1340px;width:100%;margin:0 auto}
-.brand{display:flex;align-items:center;gap:9px;font-weight:700;font-size:18px;letter-spacing:-.03em;border:0;background:none;padding:0}
-.brand i{width:20px;height:20px;border-radius:6px;background:var(--hot);display:block}
+.brand{display:flex;align-items:center;gap:9px;font-weight:700;font-size:18px;letter-spacing:-.03em;border:0;background:none;padding:0;white-space:nowrap;flex:none}
+.brand i{width:20px;height:20px;border-radius:6px;background:var(--hot);display:block;flex:none}
 .pills{display:flex;gap:2px;background:var(--well);border-radius:999px;padding:4px}
-.nav{border:0;background:none;border-radius:999px;padding:7px 14px;font-weight:500;color:var(--muted);display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
+.nav{border:0;background:none;border-radius:999px;padding:7px 11px;font-weight:500;color:var(--muted);display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
 .nav:hover{color:var(--ink)}
 .nav[aria-current="page"]{background:var(--tile);color:var(--ink);box-shadow:0 1px 2px rgb(19 20 23 / .08)}
 .nav .n{font-size:12px;font-weight:600;background:var(--hot);color:#fff;border-radius:999px;padding:0 7px;line-height:18px}
@@ -154,6 +154,30 @@ i.posted{background:var(--ink)} i.ready{background:#8C8F97} i.you{background:var
 .tb{height:8px;border-radius:999px;background:var(--well);overflow:hidden} .tb i{display:block;height:100%;border-radius:999px;background:var(--hot)}
 .slot time{white-space:nowrap}
 .ev.ghost.blk{box-shadow:inset 0 0 0 1.5px var(--bad-soft);background:repeating-linear-gradient(135deg,#fff 0 6px,var(--bad-soft) 6px 12px);color:var(--bad)}
+
+.newp{margin-right:2px}
+.kv{display:grid;grid-template-columns:84px minmax(0,1fr);gap:7px 12px;margin:0 0 22px;font-size:14.5px}
+.kv dt{color:var(--muted)} .kv dd{margin:0}
+.gauge{position:relative;display:flex;gap:3px;height:16px}
+.gauge .z{border-radius:5px;display:block} .gauge .z.ok{flex:25;background:var(--ok)} .gauge .z.warn{flex:25;background:#E3A53A} .gauge .z.bad{flex:50;background:var(--bad)}
+.gauge i{position:absolute;top:-7px;width:6px;height:30px;border-radius:3px;background:var(--ink);box-shadow:0 0 0 3px var(--tile);transform:translateX(-50%);transition:left .35s cubic-bezier(.2,.8,.2,1)}
+.gl{position:relative;height:18px;margin-top:8px;font-size:12.5px;color:var(--muted)}
+.gl.up{margin:14px 0 12px;height:16px}
+.axis{margin-top:0}
+.gl span{position:absolute;transform:translateX(-50%);white-space:nowrap} .gl span:first-child{transform:none} .gl span[style*="100%"]{transform:translateX(-100%)}
+.rules{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-top:14px;font-size:14px;color:var(--muted)}
+.rules b{display:block;color:var(--ink);font-weight:600;margin-bottom:2px}
+.rng{width:100%;margin-top:20px;accent-color:var(--ink);height:28px}
+.axis{position:relative;height:16px;border-radius:999px;background:var(--well)}
+.axis .rg{position:absolute;top:0;bottom:0;border-radius:999px;background:var(--bad)}
+.axis i{position:absolute;top:-7px;width:6px;height:30px;border-radius:3px;background:var(--ok);box-shadow:0 0 0 3px var(--tile);transform:translateX(-50%)}
+.axis i.st{background:var(--ink)}
+.dims{display:flex;flex-direction:column;margin-top:18px}
+.dim{display:flex;align-items:center;gap:12px;padding:11px 0;border-top:1px solid var(--line)}
+.dim>div:first-child{flex:1;min-width:0} .dim b{display:block;font-weight:500} .dim span{color:var(--muted);font-size:13px}
+.sc{display:flex;gap:3px;background:var(--well);border-radius:999px;padding:3px;flex:none}
+.sc button{border:0;background:none;width:32px;height:32px;border-radius:50%;font-weight:600;color:var(--muted)}
+.sc button[aria-pressed="true"]{background:var(--ink);color:#fff}
 .chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
 .chip{border:0;background:var(--tile);border-radius:999px;padding:7px 14px;font-weight:500;font-size:14px;color:var(--soft)}
 .chip small{color:var(--faint);font-size:13px;margin-left:3px}
@@ -245,6 +269,7 @@ td.num2,th.num2{text-align:right}
 
 @container app (max-width:1080px){
   .s8,.s7,.s5,.s4,.s3,.s6{grid-column:span 6}
+  .rules{grid-template-columns:repeat(2,minmax(0,1fr))}
   .s8.hero{grid-column:span 12}
   .big{font-size:76px}
 }
@@ -254,7 +279,8 @@ td.num2,th.num2{text-align:right}
 }
 @container app (max-width:640px){
   .top{padding:12px 16px 2px}
-  .pills{display:none}
+  .pills{display:none} .newp{display:none}
+  .dim{flex-wrap:wrap} .rules{grid-template-columns:minmax(0,1fr)}
   .wrap{padding:12px 14px 110px}
   .head{margin-bottom:14px}
   .head h1{font-size:27px}
@@ -288,7 +314,7 @@ td.num2,th.num2{text-align:right}
 </style>
 
 <div class="strip">
-  <span class="about"><b>Redesign concept</b> for the Indrashikha Media portal, by Sreeuday Pothula. This is not the live portal. It shows Techwave Academy as the portal recorded it on 25 Nov 2026, and nothing here changes anything there.</span>
+  <span class="about"><b>Redesign concept</b> for the Indrashikha Media portal, by Sreeuday Pothula. Not the live portal: it shows Techwave Academy as recorded on 25 Nov 2026.</span>
   <div class="seg viewsw" role="group" aria-label="View"><button id="vDesk" aria-pressed="true">Desktop</button><button id="vPhone" aria-pressed="false">Phone app</button></div>
   <button class="link" id="reset">Reset demo</button>
 </div>
@@ -346,10 +372,16 @@ const seed = () => ({
     {id:18, t:'First live doubt session and first paid test', due:'due Thu 26 Nov', late:0, done:false},
     {id:50, t:'Launch ads go live, Thu 26 Nov at 12:00', due:'due Thu 26 Nov', late:0, done:false},
   ],
+  camps:[
+    {id:1, name:'TW Launch 26 Nov: Images', where:'Facebook and Instagram, feed and stories', daily:150, days:[]},
+    {id:2, name:'TW Launch 26 Nov: Reels (video)', where:'Facebook and Instagram, reels, stories and feed', daily:250, days:[]},
+  ],
+  budget:15000,
+  scores:{presence:1, consistency:1, performance:1, growth:0, tracking:1, paid:1, community:1, governance:1},
   filter:'all', sel:0, draft:null, sheet:null, toasts:[]
 });
 let S = seed();
-const VIEWS = ['today','inbox','calendar','compose','agent','results','channels','why'];
+const VIEWS = ['today','inbox','calendar','compose','ads','budget','strategy','agent','results','channels','why'];
 const route = () => { const h = location.hash.slice(1); return VIEWS.includes(h) ? h : 'today'; };
 const go = v => { if (route() === v) render(); else location.hash = v; };
 const when = p => p.d < 0 ? p.on : `${DAYS[p.d]} Nov at ${p.tm}`;
@@ -392,7 +424,7 @@ function weekState() {
 
 /* ---------- actions: every change is instant and can be undone ---------- */
 function toast(msg, undo) { const t = {id:Math.random(), msg, undo}; S.toasts.push(t); render(); setTimeout(() => { S.toasts = S.toasts.filter(x => x !== t); render(); }, undo ? 6000 : 3600); }
-function change(msg, fn) { const snap = JSON.stringify({ytBlocked:S.ytBlocked, posts:S.posts, jobs:S.jobs, tasks:S.tasks, stuck:S.stuck}); fn(); toast(msg, () => { Object.assign(S, JSON.parse(snap)); S.toasts = []; render(); }); }
+function change(msg, fn) { const snap = JSON.stringify({ytBlocked:S.ytBlocked, posts:S.posts, jobs:S.jobs, tasks:S.tasks, stuck:S.stuck, camps:S.camps}); fn(); toast(msg, () => { Object.assign(S, JSON.parse(snap)); S.toasts = []; render(); }); }
 const post = id => S.posts.find(p => p.id == id);
 const job = id => S.jobs.find(j => j.id == id);
 const toInbox = f => { S.filter = f; S.sel = 0; go('inbox'); };
@@ -417,6 +449,9 @@ const ACT = {
   plat: k => { const d = S.draft; d.chs = d.chs.includes(k) ? d.chs.filter(x => x !== k) : [...d.chs, k]; render(); },
   aidraft: () => { const d = S.draft; const topic = d.t.trim() && !/to write/i.test(d.t) ? d.t.trim() : 'This week\'s lesson'; d.cap = `${topic}: here is the one thing to remember.\n\nTry it on your own file for two minutes, then tell us what happened.\n\nThe full course is free: {link}`; render(); toast('Sample draft added. In the product this comes from the model, checked against the brand kit.'); },
   send: () => { const d = S.draft, res = checks(d); if (res.some(c => c[0] === 'block')) return; change(d.chs.length > 1 ? `${d.chs.length} posts sent for approval.` : 'Sent for approval.', () => { let nid = Math.max(...S.posts.map(p => p.id)) + 1; if (d.id) S.posts = S.posts.filter(p => p.id !== d.id); d.chs.forEach(k => S.posts.push({id:nid++, t:d.t.trim(), ch:k, d:d.d, tm:d.tm, st:'review', cap:d.cap})); S.draft = null; }); toInbox('appr'); },
+  logday: id => { const v = k => Math.max(0, +($('#' + k)?.value || 0)); const d = {spend:v('lspend'), clicks:v('lclicks'), signups:v('lsign')}; if (!d.spend) { $('#lspend')?.focus(); return toast('Enter what was spent.'); } S.sheet = null; change('Results logged. The guardrail is updated.', () => { S.camps.find(c => c.id == id).days.push(d); }); },
+  score: arg => { const [k, v] = arg.split(':'); S.scores[k] = +v; render(); },
+  preset: v => { S.budget = +v; render(); },
   summary: () => { const w = weekState(); const txt = `Techwave Academy, week of 23 Nov: ${w.c.posted} of ${w.all.length} planned posts out so far. 41 sign-ups this week, 0 traced to social, 17 via AI assistants. Followers 95 across 6 channels. Blocking: YouTube sign-in.`; const done = () => toast('Weekly summary copied. Paste it into WhatsApp.'); try { navigator.clipboard.writeText(txt).then(done, done); } catch { done(); } },
 };
 function tick(j) { render(); if (j.step >= j.steps.length) { j.st = 'done'; j.proof = ['Simulated here: the real agent reports links as proof']; render(); return toast('Agent finished. In the product, proof links appear on the job.'); } setTimeout(() => { if (j.st !== 'running') return; j.step++; tick(j); }, 1300); }
@@ -435,7 +470,7 @@ function vToday() {
   const L = [['posted','Posted'],['ready','Scheduled, posts itself'],['you','Waiting on a person'],['blocked','Blocked'],['gap','Not written yet']];
   const NEXT = [['Today','Build the two launch ads in Ads Manager, paused','You','var(--hot)'],['Thu 12:00','Launch ads go live','You','var(--hot)'],['Thu','First live doubt session, 30 minutes','You','var(--hot)'],['Sat','Telegram cross-promotion is due','Agent, waiting for your OK','var(--agent)'],['Tue 1 Dec','Day-5 ad review: scale or stop','Agent does it','var(--agent)']];
   const T = [['Sign-ups from social, a week',0,5],['Instagram followers',4,300],['WhatsApp followers',20,200],['YouTube subscribers',2,150],['Telegram members',3,150]];
-  return head('Wednesday, 25 November', `${ns.length} decisions today. No posts are scheduled for the rest of the week yet.`, `<button class="btn pri" data-act="go" data-arg="compose">New post</button>`) +
+  return head('Wednesday, 25 November', `${ns.length} decisions today. No posts are scheduled for the rest of the week yet.`) +
   `<div class="bento">
     <section class="tile s8 hero"><div class="lab">This week, one block per post in the plan</div>
       <div class="big">${good}<small> of ${total} planned posts are out or ready</small></div>
@@ -483,6 +518,11 @@ function detail(key) {
     <label class="field">Link to the live post (optional, used as proof)<input class="in" id="posturl" placeholder="Paste the post link"></label>
     <div><button class="btn" data-act="posted" data-arg="${p.id}">Mark as posted</button></div></div>`; }
   if (t === 't') { const k = S.tasks.find(x => x.id == id); return `<div class="detail"><span class="pill ${k.late ? 'bad' : 'plain'}">${k.late ? k.late + ' days late' : 'Task'}</span><h2>${esc(k.t)}</h2><p class="why">${esc(k.due)}</p><div><button class="btn pri" data-act="donetask" data-arg="${k.id}">Mark done</button></div></div>`; }
+  if (t === 'c') { const c = S.camps.find(x => x.id == id), st = campState(c); return `<div class="detail"><span class="pill plain">Log a day's results</span><h2>${esc(c.name)}</h2><p class="why">Copy three numbers from Ads Manager. The guardrail and the verdict update at once. Planned spend is ${inr(c.daily)} a day.</p>
+    <label class="field">Spent today (₹)<input class="in" id="lspend" type="number" min="0" inputmode="numeric" placeholder="${c.daily}"></label>
+    <div class="two"><label class="field">Link clicks<input class="in" id="lclicks" type="number" min="0" inputmode="numeric" placeholder="0"></label><label class="field">Verified sign-ups<input class="in" id="lsign" type="number" min="0" inputmode="numeric" placeholder="0"></label></div>
+    <div class="note">So far: ${inr(st.sp)} spent, ${st.su} sign-ups${st.cost ? ', ' + inr(st.cost) + ' each' : ''}.</div>
+    <div class="btnrow"><button class="btn pri" data-act="logday" data-arg="${c.id}">Save the day</button></div></div>`; }
   if (t === 'q') { const p = post(id); const stl = {published:['ok','Posted'], scheduled:['ok','Scheduled, posts itself'], failed:['bad','Failed: never written'], hand:['acc','You post by hand'], review:['warn','Waiting for approval'], draft:['plain','Draft']}[p.st]; return `<div class="detail"><span class="pill ${stl[0]}">${stl[1]}</span><h2>${esc(p.t)}</h2><p class="why">${chip(p.ch)} &nbsp;${when(p)} IST</p>${p.cap ? `<div class="cap">${esc(p.cap.replace('{link}', link(p)))}</div>` : '<div class="note">No caption yet.</div>'}${p.note ? `<div class="note"><b>Reviewer's note</b><br>${esc(p.note)}</div>` : ''}<div class="btnrow">${p.st === 'published' ? '' : `<button class="btn pri" data-act="editpost" data-arg="${p.id}">${p.st === 'draft' || p.st === 'failed' ? 'Write this post' : 'Edit'}</button>`}</div></div>`; }
   return '';
 }
@@ -501,7 +541,7 @@ function vCalendar() {
   const cols = DAYS.map((d, i) => ({d, i, ps:week().filter(p => p.d === i).sort((a, b) => a.tm.localeCompare(b.tm)), ghosts:[]}));
   for (const [k, d] of emptySlots()) cols[d].ghosts.push(k);
   const stt = {published:'Posted', scheduled:'Scheduled', failed:'Failed, never written', hand:'By hand', review:'In review', draft:'Draft'};
-  return head('Calendar', `Week of 23 November, times in IST. Outlined cards are posts the plan expects that nobody has written yet. Click one to write it.`, `<button class="btn pri" data-act="go" data-arg="compose">New post</button>`) +
+  return head('Calendar', `Week of 23 November, times in IST. Outlined cards are posts the plan expects that nobody has written yet. Click one to write it.`) +
   `<div class="cal">${cols.map(c => `<div class="day ${c.i === TODAY ? 'today' : ''}"><h3><b>${c.d}</b>${c.i === TODAY ? '<span>Today</span>' : ''}</h3>${c.ps.map(p => `<button class="ev ${p.st === 'failed' ? 'blocked' : ['review','hand','draft'].includes(p.st) ? 'you' : ''}" style="--c:${CH[p.ch].c}" data-act="open" data-arg="${p.st === 'failed' ? 'f' : 'q'}-${p.id}"><b>${esc(p.t)}</b><small><i></i>${p.tm} ${CH[p.ch].name}, ${stt[p.st]}</small></button>`).join('')}${c.ghosts.map(k => k === 'yt' && S.ytBlocked ? `<button class="ev ghost blk" style="--c:${CH[k].c}" data-act="ghost" data-arg="${k}:${c.i}"><b>YouTube</b><small><i></i>Blocked by sign-in</small></button>` : `<button class="ev ghost" style="--c:${CH[k].c}" data-act="ghost" data-arg="${k}:${c.i}"><b>+ ${CH[k].name}</b><small><i></i>Planned, not written</small></button>`).join('')}${!c.ps.length && !c.ghosts.length ? '<p class="ph" style="padding:4px;font-size:13px">Nothing recorded for this day.</p>' : ''}</div>`).join('')}</div>`;
 }
 function checks(d) {
@@ -591,25 +631,92 @@ function vWhy() {
     ['The composer showed "35 / 63,206" on an empty caption and a plain text preview.','True previews','Each channel gets its own preview, limit and truncation point, and counters start at zero.'],
     ['Words such as "partial" and "L1 recommend", and channel codes such as "in" and "@".','Plain words','Posted, By hand, Blocked, Needs approval. Channels are named in full.'],
     ['The Claude page did not open: the sidebar item and the "needs your OK" pill both landed on Home.','Agent with steps and proof','Each job shows its steps, which ones are public, the risk level, and proof at the end. Approve job #129 to watch it run.'],
+    ['Ads run under three different limits: stop at ₹40 on campaigns, stop at ₹60 in the plan, while the forecast expects ₹142 to ₹938 a sign-up.','One guardrail, shown against the forecast','Budget draws the target, the stop line and the forecast on one scale, so the conflict is visible before money is spent. Ads shows launch readiness and turns logged results into a plain verdict.'],
+    ['The plan is a document; nothing shows where the week has drifted from it.','The plan next to reality','Strategy lists each part of the plan with its status this week, and the maturity score recalculates as you change a rating.'],
     ['Daily jobs (approve, post by hand, OK the agent) needed a desktop.','A phone app for the daily loop','Switch to Phone app at the top. Same data, bottom tabs, sheets, large targets.'],
   ];
-  return head('What changed and why', 'I reviewed the live portal on 25 November 2026. These are the ten things I would change first, and where to see each one working here.') +
+  return head('What changed and why', 'I reviewed the live portal on 25 November 2026. These are the things I would change first, and where to see each one working here.') +
   `<section class="tile why"><div class="tw"><table><thead><tr><th>What I saw in the portal</th><th>What this concept does</th></tr></thead><tbody>${R.map(r => `<tr><td>${r[0]}</td><td><b>${r[1]}</b>${r[2]}</td></tr>`).join('')}</tbody></table></div></section>
   <p style="color:var(--muted);margin:18px 6px 0;max-width:70ch">What the portal already does well and this concept keeps: one inbox, a person approving before anything public, proof on finished work, undo, and India time everywhere.</p>`;
 }
-const V = {today:vToday, inbox:vInbox, calendar:vCalendar, compose:vCompose, agent:vAgent, results:vResults, channels:vChannels, why:vWhy};
-const NAV = [['today','Today'],['inbox','Inbox'],['calendar','Calendar'],['compose','New post'],['agent','Agent',0,1],['results','Results',0,1],['channels','Channels',0,1],['why','What changed',0,1]];
+
+const inr = n => '₹' + Math.round(n).toLocaleString('en-IN');
+const TARGET = 20, STOP = 40;
+function campState(c) {
+  const sp = c.days.reduce((n, d) => n + d.spend, 0), su = c.days.reduce((n, d) => n + d.signups, 0), cl = c.days.reduce((n, d) => n + d.clicks, 0), cost = su ? sp / su : null;
+  const v = !c.days.length ? ['plain','No results yet','Log the first day after launch.'] : !su ? (sp >= STOP ? ['bad','Stop', `${inr(sp)} spent with no sign-ups.`] : ['warn','Watch','No sign-ups yet. Too early to judge.']) : cost <= TARGET ? ['ok','Scale', `${inr(cost)} a sign-up, under the ${inr(TARGET)} target. Raise by at most 20%.`] : cost <= STOP ? ['warn','Keep running', `${inr(cost)} a sign-up, between target and stop line.`] : ['bad','Stop', `${inr(cost)} a sign-up, above the ${inr(STOP)} stop line.`];
+  return {sp, su, cl, cost, v};
+}
+const adTabs = r => `<div class="chips"><button class="chip" aria-pressed="${r === 'ads'}" data-act="go" data-arg="ads">Campaigns</button><button class="chip" aria-pressed="${r === 'budget'}" data-act="go" data-arg="budget">Budget</button></div>`;
+function vAds() {
+  const tk = id => S.tasks.find(t => t.id === id), R = [[tk(15), 'Ad account set up and the monthly budget approved in writing'], [tk(49), 'Both ads built in Ads Manager, paused'], [{done:true, due:'checked 29 Oct'}, 'Sign-ups are counted: OTP-verified, tagged tw-launch-nov26']];
+  const open = R.filter(r => !r[0].done).length;
+  return head('Ads', 'Two campaigns launch tomorrow, Thursday 26 November at 12:00. Nothing has been spent yet.') + adTabs('ads') +
+  `<div class="bento">
+    <section class="tile s12"><div class="lab">Ready to launch?</div><h2 style="font-size:26px;margin:6px 0 4px">${open ? `${open} of 3 things are not ready, and launch is tomorrow` : 'Everything is ready for tomorrow'}</h2>
+      <div class="rows">${R.map(r => `<div class="row"><span class="kind ${r[0].done ? 'hand' : 'block'}" aria-hidden="true">${r[0].done ? '✓' : '!'}</span><div class="txt"><b>${r[1]}</b><span>${r[0].done ? 'Done' + (r[0].due.startsWith('checked') ? ', ' + r[0].due : '') : r[0].due + (r[0].late ? `, ${r[0].late} days late` : '')}</span></div>${r[0].done || !r[0].id ? '' : `<div class="acts"><button class="btn sm pri" data-act="donetask" data-arg="${r[0].id}">Done</button></div>`}</div>`).join('')}</div></section>
+    ${S.camps.map(c => { const st = campState(c), pos = st.cost == null ? null : Math.min(100, st.cost / 80 * 100); return `<section class="tile s6"><div class="lab">${c.days.length ? `${c.days.length} ${c.days.length === 1 ? 'day' : 'days'} logged` : 'Planned'}, Thu 26 Nov to Sat 5 Dec</div><h2 style="font-size:22px;margin:6px 0 14px">${esc(c.name)}</h2>
+      <dl class="kv"><dt>Where</dt><dd>${c.where}</dd><dt>Who</dt><dd>18 to 25, students and recent graduates (ITI, B.Com, BCA, BA)</dd><dt>Regions</dt><dd>UP, Bihar, MP, Delhi NCR</dd><dt>Budget</dt><dd>${inr(c.daily)} a day, ${inr(c.daily * 10)} over 10 days</dd><dt>So far</dt><dd>${inr(st.sp)} spent, ${st.cl} clicks, ${st.su} sign-ups</dd></dl>
+      <div class="gauge"><span class="z ok"></span><span class="z warn"></span><span class="z bad"></span>${pos == null ? '' : `<i style="left:${pos}%"></i>`}</div>
+      <div class="gl"><span>₹0</span><span style="left:25%">Target ${inr(TARGET)}</span><span style="left:50%">Stop ${inr(STOP)}</span><span style="left:100%">₹80+</span></div>
+      <div class="foot" style="margin-top:26px"><span><b class="pill ${st.v[0]}">${st.v[1]}</b> &nbsp;${st.v[2]}</span><button class="btn sm pri" data-act="open" data-arg="c-${c.id}">Log a day's results</button></div></section>`; }).join('')}
+    <section class="tile s12"><h2>The rules for this money</h2><div class="rules"><div><b>Stops itself</b>Any ad set above ${inr(STOP)} a sign-up is paused.</div><div><b>Scales slowly</b>Winners go up by at most 20% a step.</div><div><b>Organic first</b>Only boost posts that already beat average watch time.</div><div><b>No under-18s</b>Never targeted, on any platform.</div></div></section>
+  </div>`;
+}
+const BF = {fb:{n:'Facebook', share:.4, cl:[240,1200], su:[9,48], co:[125,625]}, ig:{n:'Instagram', share:.4, cl:[137,1000], su:[5,40], co:[150,1094]}, ga:{n:'Google Ads', share:.2, cl:[38,300], su:[2,18], co:[167,1333]}};
+const nf = n => Math.round(n).toLocaleString('en-IN');
+const budTop = () => `<div class="big" style="font-size:72px">${inr(S.budget)}<small> a month</small></div><p class="sub">Plus ${inr(S.budget * .18)} GST at 18%, so ${inr(S.budget * 1.18)} leaves the bank.</p>`;
+function budTab() {
+  const b = S.budget, k = b / 15000, r = a => `${nf(a[0] * k)}–${nf(a[1] * k)}`;
+  return `<table><thead><tr><th>Platform</th><th class="num2">Spend</th><th class="num2">A day</th><th class="num2">Clicks</th><th class="num2">Sign-ups</th><th class="num2">Cost each</th></tr></thead><tbody>
+    ${Object.values(BF).map(p => `<tr><td>${p.n} <span class="ph">${p.share * 100}%</span></td><td class="num2">${inr(b * p.share)}</td><td class="num2">${inr(b * p.share / 30)}</td><td class="num2">${r(p.cl)}</td><td class="num2">${r(p.su)}</td><td class="num2">${inr(p.co[0])}–${inr(p.co[1])}</td></tr>`).join('')}
+    <tr><td><b>Total</b></td><td class="num2"><b>${inr(b)}</b></td><td class="num2">${inr(b / 30)}</td><td class="num2">${r([415, 2500])}</td><td class="num2"><b>${r([16, 106])}</b></td><td class="num2">₹142–₹938</td></tr></tbody></table>`;
+}
+function vBudget() {
+  const lg = v => (Math.log10(v) - 1) / 2 * 100, P = [['Lean',6000],['Standard',12000],['Plan',15000],['Aggressive',30000]];
+  return head('Budget', 'What the money is expected to buy, and the limits it runs under.') + adTabs('budget') +
+  `<div class="cols"><section class="tile"><div class="lab">Monthly ad spend, before GST</div><div id="budtop">${budTop()}</div>
+      <input type="range" id="bud" class="rng" min="3000" max="30000" step="500" value="${S.budget}" aria-label="Monthly ad spend">
+      <div class="btnrow" style="margin-top:8px">${P.map(p => `<button class="btn sm ${S.budget === p[1] ? 'pri' : ''}" data-act="preset" data-arg="${p[1]}">${p[0]} ${inr(p[1])}</button>`).join('')}</div>
+      <h2 style="margin-top:28px">What that is expected to buy</h2><div class="tw" id="budtab">${budTab()}</div>
+      <p class="sub" style="margin-top:10px">Ranges come from the plan's benchmarks. They are estimates, shown as ranges on purpose.</p></section>
+    <div style="display:flex;flex-direction:column;gap:14px;min-width:0">
+    <section class="tile"><div class="lab">Check before spending</div><h2 style="font-size:22px;margin:6px 0 6px">The forecast sits far above the stop line</h2>
+      <p class="sub">Cost of one sign-up, in rupees, on a log scale.</p>
+      <div class="gl up"><span style="left:${lg(20)}%">Target ₹20</span></div>
+      <div class="axis"><span class="rg" style="left:${lg(142)}%;width:${lg(938) - lg(142)}%"></span><i style="left:${lg(20)}%"></i><i class="st" style="left:${lg(40)}%"></i></div>
+      <div class="gl"><span style="left:${lg(40)}%;transform:translateX(-50%)">Stop ₹40</span><span style="left:${(lg(142) + lg(938)) / 2}%">Forecast ₹142 to ₹938</span></div>
+      <div class="note bad" style="margin-top:22px"><b>These three numbers cannot all be right</b><br>Campaigns stop above ₹40 a sign-up. The plan document says ₹60, with a ₹30 target. The forecast expects ₹142 at best. As set, every ad would be stopped. Agree one stop line, or fix the benchmarks, before launch.</div></section>
+    <section class="tile"><h2>Budget path in the plan</h2><div class="rows"><div class="row"><div class="txt"><b>Weeks 1 to 4</b><span>None, or one small regional test</span></div><b>₹0–₹1,000</b></div><div class="row"><div class="txt"><b>Weeks 5 to 8</b><span>2 or 3 tests of the best organic reels</span></div><b>₹6,000–₹9,000</b></div><div class="row"><div class="txt"><b>Weeks 9 to 12</b><span>Scale the winners that hold</span></div><b>₹10,000–₹15,000</b></div></div></section></div></div>`;
+}
+const DIM = [['presence','Presence and hygiene',.10],['consistency','Content consistency',.15],['performance','Content performance',.15],['growth','Audience growth',.10],['tracking','Conversion tracking and attribution',.20],['paid','Paid readiness',.10],['community','Community and response',.10],['governance','Governance and compliance',.10]];
+function vStrategy() {
+  const total = DIM.reduce((n, d) => n + S.scores[d[0]] / 4 * d[2] * 100, 0), band = total <= 20 ? 'Absent' : total <= 40 ? 'Emerging' : total <= 60 ? 'Developing' : total <= 80 ? 'Established' : 'Optimised';
+  const w = weekState(), lever = DIM.filter(d => S.scores[d[0]] < 4).sort((a, b) => b[2] - a[2])[0];
+  const PLAN = [['Executive summary'],['Where we are today','6 channels live, 95 followers','ok'],['Who we are for, and what we can honestly say','9 approved claims','ok'],['Platforms: where to be, and how to set each up','0 of 6 post through an API','bad','channels'],['Brand voice and visual identity on social'],['Content system'],['Posting plan',`${w.c.posted} of ${w.all.length} posts out this week`,'bad','today'],['What the competition does, and the gaps we can own'],['Community and regional languages','Tamil and Telugu reviewers not found yet','bad','inbox'],['Paid amplification and creator partnerships','Launch Thu 26 Nov, 2 checks open','warn','ads'],['Measurement: tracking, targets and the weekly dashboard','0 of 5 sign-ups a week from social','bad','results'],['Operating model, tools and automation','6 agent jobs stuck on one cause','bad','agent'],['Compliance and brand-safety rules'],['90-day roadmap and setup checklist','4 tasks overdue','warn','inbox']];
+  return head('Strategy', 'The assessment and the plan. Each part of the plan shows how this week compares with it.') +
+  `<div class="cols"><section class="tile"><div class="lab">Social maturity score, out of 100</div><div class="big" style="font-size:80px">${total.toFixed(1)}<small> ${band}</small></div>
+      <div class="week" style="margin:14px 0 8px">${[20,40,60,80,100].map((b, i) => `<i style="height:14px;${total > b - 20 ? 'background:var(--ink)' : ''}${total > b - 20 && total <= b ? ';background:var(--hot)' : ''}"></i>`).join('')}</div>
+      <div class="legend" style="font-size:13px;gap:6px 0;justify-content:space-between;color:var(--muted)"><span>Absent</span><span>Emerging</span><span>Developing</span><span>Established</span><span>Optimised</span></div>
+      ${lever ? `<div class="note" style="margin-top:16px"><b>Biggest lever: ${lever[1].toLowerCase()}</b><br>It carries ${lever[2] * 100}% of the score. Each step up adds ${(lever[2] * 25).toFixed(1)} points. Try it below.</div>` : ''}
+      <div class="dims">${DIM.map(d => `<div class="dim"><div><b>${d[1]}</b><span>${d[2] * 100}% of the score, ${(S.scores[d[0]] / 4 * d[2] * 100).toFixed(1)} points</span></div><div class="sc" role="group" aria-label="${d[1]}">${[0,1,2,3,4].map(v => `<button aria-pressed="${S.scores[d[0]] === v}" data-act="score" data-arg="${d[0]}:${v}">${v}</button>`).join('')}</div></div>`).join('')}</div></section>
+    <section class="tile"><div class="lab">Social media plan 2026-27, v1.0, approved 21 Oct 2026</div><h2 style="font-size:22px;margin:6px 0 4px">The plan, next to what is happening</h2><p class="sub">A plan is only useful if you can see where reality has drifted from it.</p>
+      <div class="rows">${PLAN.map((p, i) => `<div class="row ${p[3] ? 'click' : ''}" ${p[3] ? `data-act="go" data-arg="${p[3]}"` : ''}><span class="kind task" aria-hidden="true">${i + 1}</span><div class="txt"><b>${p[0]}</b>${p[1] ? `<span>${p[1]}</span>` : ''}</div>${p[1] ? `<span class="pill ${p[2]}">${p[2] === 'ok' ? 'On plan' : p[2] === 'warn' ? 'At risk' : 'Behind'}</span>` : ''}</div>`).join('')}</div></section></div>`;
+}
+const V = {today:vToday, ads:vAds, budget:vBudget, strategy:vStrategy, inbox:vInbox, calendar:vCalendar, compose:vCompose, agent:vAgent, results:vResults, channels:vChannels, why:vWhy};
+const NAV = [['today','Today'],['inbox','Inbox'],['calendar','Calendar'],['ads','Ads'],['results','Results'],['strategy','Strategy',0,1],['agent','Agent',0,1],['channels','Channels',0,1],['why','Changes',0,1]];
+const MORE = [['ads','Ads'],['budget','Budget'],['results','Results'],['strategy','Strategy'],['agent','Agent'],['channels','Channels'],['why','What changed']];
 
 function render() {
   const r = route(), n = needs().length, app = $('#app');
   const keep = document.activeElement?.id, pos = document.activeElement?.selectionStart, sc = $('main', app)?.scrollTop || 0, same = app.dataset.r === r;
   app.dataset.r = r;
   app.innerHTML = `<header class="top"><button class="brand" data-act="go" data-arg="today"><i></i>Indrashikha Media</button>
-      <nav class="pills" aria-label="Sections">${NAV.map(([k, l, ic, opt]) => `<button class="nav ${opt ? 'opt' : ''}" data-act="go" data-arg="${k}" ${r === k ? 'aria-current="page"' : ''}>${l}${k === 'inbox' && n ? `<span class="n">${n}</span>` : ''}</button>`).join('')}</nav>
-      <span class="sp"></span><div class="client"><span class="mark" style="background:#9E174F">TW</span><span class="nm">Techwave Academy</span></div></header>
+      <nav class="pills" aria-label="Sections">${NAV.map(([k, l, ic, opt]) => `<button class="nav ${opt ? 'opt' : ''}" data-act="go" data-arg="${k}" ${r === k || (k === 'ads' && r === 'budget') ? 'aria-current="page"' : ''}>${l}${k === 'inbox' && n ? `<span class="n">${n}</span>` : ''}</button>`).join('')}</nav>
+      <span class="sp"></span><button class="btn pri sm newp" data-act="go" data-arg="compose">New post</button><div class="client"><span class="mark" style="background:#9E174F">TW</span><span class="nm">Techwave Academy</span></div></header>
     <main id="main"><div class="wrap">${V[r]()}</div></main>
-    <nav class="tabs" aria-label="Sections">${[['today','Today','today'],['inbox','Inbox','inbox'],['compose','New','plus'],['calendar','Calendar','cal'],['more','More','more']].map(([k, l, ic]) => `<button class="${k === 'compose' ? 'plus' : ''}" data-act="${k === 'more' ? 'open' : 'go'}" data-arg="${k === 'more' ? 'more' : k}" aria-label="${l}" ${r === k || (k === 'more' && ['agent','results','channels','why'].includes(r)) ? 'aria-current="page"' : ''}>${ico(ic)}<span>${l}</span>${k === 'inbox' && n ? `<b class="n">${n}</b>` : ''}</button>`).join('')}</nav>
-    ${S.sheet ? `<div class="scrim" data-act="close"></div><aside class="drawer" role="dialog" aria-modal="true" aria-label="Details"><div class="x"><button class="btn sm" data-act="close">Close</button></div>${S.sheet === 'more' ? `<div class="detail"><h2>More</h2><div class="rows" style="margin-top:0">${NAV.slice(4).map(([k, l]) => `<div class="row click" data-act="go" data-arg="${k}"><div class="txt"><b>${l}</b></div><span class="ph">›</span></div>`).join('')}</div></div>` : detail(S.sheet)}</aside>` : ''}
+    <nav class="tabs" aria-label="Sections">${[['today','Today','today'],['inbox','Inbox','inbox'],['compose','New','plus'],['calendar','Calendar','cal'],['more','More','more']].map(([k, l, ic]) => `<button class="${k === 'compose' ? 'plus' : ''}" data-act="${k === 'more' ? 'open' : 'go'}" data-arg="${k === 'more' ? 'more' : k}" aria-label="${l}" ${r === k || (k === 'more' && MORE.some(m => m[0] === r)) ? 'aria-current="page"' : ''}>${ico(ic)}<span>${l}</span>${k === 'inbox' && n ? `<b class="n">${n}</b>` : ''}</button>`).join('')}</nav>
+    ${S.sheet ? `<div class="scrim" data-act="close"></div><aside class="drawer" role="dialog" aria-modal="true" aria-label="Details"><div class="x"><button class="btn sm" data-act="close">Close</button></div>${S.sheet === 'more' ? `<div class="detail"><h2>More</h2><div class="rows" style="margin-top:0">${MORE.map(([k, l]) => `<div class="row click" data-act="go" data-arg="${k}"><div class="txt"><b>${l}</b></div><span class="ph">›</span></div>`).join('')}</div></div>` : detail(S.sheet)}</aside>` : ''}
     <div class="toasts" role="status" aria-live="polite">${S.toasts.map((t, i) => `<div class="toast"><span>${esc(t.msg)}</span>${t.undo ? `<button data-act="undo" data-arg="${i}">Undo</button>` : ''}</div>`).join('')}</div>`;
   if (same) $('main', app).scrollTop = sc;
   if (keep && $('#' + keep)) { const el = $('#' + keep); el.focus(); if (pos != null && el.setSelectionRange) try { el.setSelectionRange(pos, pos); } catch {} }
@@ -624,6 +731,7 @@ document.addEventListener('click', e => {
   ACT[a]?.(arg);
 });
 document.addEventListener('input', e => {
+  if (e.target.id === 'bud') { S.budget = +e.target.value; $('#budtop').innerHTML = budTop(); $('#budtab').innerHTML = budTab(); return; }
   const d = S.draft; if (!d || !['ft','fc','fd','ftm'].includes(e.target.id)) return;
   d.t = $('#ft').value; d.cap = $('#fc').value; d.d = +$('#fd').value; d.tm = $('#ftm').value || '18:00';
   $('#side').innerHTML = side(d);
