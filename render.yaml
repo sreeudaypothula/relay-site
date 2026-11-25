@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: relay-media-desk
+    runtime: static
+    buildCommand: "true"
+    staticPublishPath: .
