@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex"><style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
-<title>Relay Media Desk</title>
+<title>Indrashikha Media Redesign</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap">
 <style>
@@ -288,7 +288,7 @@ td.num2,th.num2{text-align:right}
 </style>
 
 <div class="strip">
-  <span class="about"><b>Relay</b> is a redesign concept for the Indrashikha Media portal, by Sreeuday Pothula. It shows Techwave Academy as the portal recorded it on 25 Nov 2026. Nothing here changes the real portal.</span>
+  <span class="about"><b>Redesign concept</b> for the Indrashikha Media portal, by Sreeuday Pothula. This is not the live portal. It shows Techwave Academy as the portal recorded it on 25 Nov 2026, and nothing here changes anything there.</span>
   <div class="seg viewsw" role="group" aria-label="View"><button id="vDesk" aria-pressed="true">Desktop</button><button id="vPhone" aria-pressed="false">Phone app</button></div>
   <button class="link" id="reset">Reset demo</button>
 </div>
@@ -470,7 +470,7 @@ function detail(key) {
     ${j.proof.length ? `<div class="btnrow">${j.proof.map(p => `<span class="proof">✓ ${esc(p)}</span>`).join('')}</div>` : ''}
     ${j.st === 'needs_ok' ? `<div class="btnrow"><button class="btn agent" data-act="okjob" data-arg="${j.id}">Approve the public step</button></div>` : j.st === 'running' ? '<span class="pill agent">Working…</span>' : ''}</div>`; }
   if (t === 'f') { const p = post(id); return `<div class="detail"><span class="pill bad">Failed on LinkedIn</span><h2>This post was scheduled before anyone wrote it</h2><p class="why">Its title is "${esc(p.t)}" and the caption is empty. It was scheduled for ${when(p)}, LinkedIn had nothing to publish, and it has been sitting in three lists since.</p>
-    <div class="note ok"><b>How Relay stops this</b><br>A placeholder title or an empty caption cannot be sent for approval. Try it in New post.</div>
+    <div class="note ok"><b>How this design stops it</b><br>A placeholder title or an empty caption cannot be sent for approval. Try it in New post.</div>
     <div class="btnrow"><button class="btn pri" data-act="editpost" data-arg="${p.id}">Write it now</button><button class="btn" data-act="retire" data-arg="${p.id}">Remove it</button></div></div>`; }
   if (t === 'p') { const p = post(id); const flag = /guarantee|100%|#1\b/i.test(p.cap); return `<div class="detail"><span class="pill warn">Waiting for approval</span><h2>${esc(p.t)}</h2><p class="why">${chip(p.ch)} &nbsp;${when(p)} IST</p>
     <div class="cap">${esc(p.cap.replace('{link}', link(p)))}</div>
@@ -604,7 +604,7 @@ function render() {
   const r = route(), n = needs().length, app = $('#app');
   const keep = document.activeElement?.id, pos = document.activeElement?.selectionStart, sc = $('main', app)?.scrollTop || 0, same = app.dataset.r === r;
   app.dataset.r = r;
-  app.innerHTML = `<header class="top"><button class="brand" data-act="go" data-arg="today"><i></i>Relay</button>
+  app.innerHTML = `<header class="top"><button class="brand" data-act="go" data-arg="today"><i></i>Indrashikha Media</button>
       <nav class="pills" aria-label="Sections">${NAV.map(([k, l, ic, opt]) => `<button class="nav ${opt ? 'opt' : ''}" data-act="go" data-arg="${k}" ${r === k ? 'aria-current="page"' : ''}>${l}${k === 'inbox' && n ? `<span class="n">${n}</span>` : ''}</button>`).join('')}</nav>
       <span class="sp"></span><div class="client"><span class="mark" style="background:#9E174F">TW</span><span class="nm">Techwave Academy</span></div></header>
     <main id="main"><div class="wrap">${V[r]()}</div></main>
