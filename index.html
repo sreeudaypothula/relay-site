@@ -1,0 +1,649 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex"><style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Relay Media Desk</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: a centred page of borderless white tiles on a warm-grey canvas. Pill navigation on top; the Today view is a bento whose centrepiece draws the week as one block per planned post. In Phone view the same surface sits in a device frame and container queries switch to a floating tab bar. Single light look by choice. */
+:root{
+  color-scheme:light;
+  --canvas:#F2F2EE; --tile:#FFFFFF; --well:#E9E9E4; --line:#EDEDE8;
+  --ink:#131417; --soft:#3A3E46; --muted:#696E78; --faint:#A3A7AF;
+  --hot:#FF4A1C; --hot-soft:#FFE4DB; --hot-ink:#B62E0A;
+  --agent:#5B41F0; --agent-soft:#E8E3FF;
+  --ok:#0F7A45; --ok-soft:#DAF2E4; --warn:#9A5C06; --warn-soft:#FBEACB; --bad:#BF2A1C; --bad-soft:#FBDCD7;
+  --sans:"Geist","Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--canvas);color:var(--ink);font:15px/1.45 var(--sans);font-variant-numeric:tabular-nums;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--ink);outline-offset:2px;border-radius:8px}
+h1,h2,h3{margin:0;font-weight:600;letter-spacing:-.025em;text-wrap:balance}
+p{margin:0}
+.strip{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;padding-block:7px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));background:var(--ink);color:#fff;font-size:13px}
+.strip .about{flex:1 1 260px;min-width:0;color:#C9CBD1}
+.strip .about b{color:#fff;font-weight:600}
+.seg{display:inline-flex;border-radius:999px;padding:3px;background:#2A2C32}
+.seg button{border:0;background:none;padding:4px 13px;border-radius:999px;font-weight:500;font-size:13px;color:#C9CBD1}
+.seg button[aria-pressed="true"]{background:#fff;color:var(--ink)}
+.link{border:0;background:none;color:#fff;font-weight:500;padding:4px 2px;text-decoration:underline;text-underline-offset:3px}
+.stage{flex:1;min-height:0;display:flex}
+.stage.phone{align-items:center;justify-content:center;padding:14px;overflow:auto;background:radial-gradient(circle at 50% 0,#fff,var(--canvas) 60%)}
+.device{flex:1;min-width:0;min-height:0;display:flex}
+.stage.phone .device{flex:none;width:394px;height:min(812px,100%);min-height:560px;border:11px solid var(--ink);border-radius:46px;overflow:hidden;box-shadow:0 30px 70px rgb(19 20 23 / .28)}
+@media (max-width:520px){ .stage.phone{padding:0} .stage.phone .device{width:100%;height:100%;border:0;border-radius:0;box-shadow:none} .seg.viewsw{display:none} }
+
+.app{container:app / inline-size;flex:1;min-width:0;display:flex;flex-direction:column;position:relative;overflow:hidden;background:var(--canvas)}
+.top{display:flex;align-items:center;gap:14px;padding:16px 28px 6px;max-width:1340px;width:100%;margin:0 auto}
+.brand{display:flex;align-items:center;gap:9px;font-weight:700;font-size:18px;letter-spacing:-.03em;border:0;background:none;padding:0}
+.brand i{width:20px;height:20px;border-radius:6px;background:var(--hot);display:block}
+.pills{display:flex;gap:2px;background:var(--well);border-radius:999px;padding:4px}
+.nav{border:0;background:none;border-radius:999px;padding:7px 14px;font-weight:500;color:var(--muted);display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
+.nav:hover{color:var(--ink)}
+.nav[aria-current="page"]{background:var(--tile);color:var(--ink);box-shadow:0 1px 2px rgb(19 20 23 / .08)}
+.nav .n{font-size:12px;font-weight:600;background:var(--hot);color:#fff;border-radius:999px;padding:0 7px;line-height:18px}
+.nav svg{display:none}
+.top .sp{flex:1}
+.client{display:flex;align-items:center;gap:8px;background:var(--tile);border-radius:999px;padding:5px 14px 5px 5px;font-weight:500;white-space:nowrap}
+.client .mark{width:28px;height:28px;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;font-weight:600;font-size:11px}
+main{flex:1;min-width:0;overflow:auto}
+.wrap{max-width:1340px;margin:0 auto;padding:18px 28px 56px}
+.tabs{display:none}
+.head{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px 16px;margin-bottom:22px}
+.head>div{flex:1 1 320px;min-width:0}
+.head h1{font-size:34px;line-height:1.08;letter-spacing:-.04em}
+.head p{color:var(--muted);margin-top:6px;font-size:16px;max-width:64ch}
+.btn{border:0;background:var(--well);border-radius:999px;padding:9px 16px;font-weight:500;white-space:nowrap;color:var(--ink)}
+.btn:hover{background:#DEDED8}
+.btn.pri{background:var(--ink);color:#fff} .btn.pri:hover{background:#000}
+.btn.agent{background:var(--agent);color:#fff}
+.btn.lite{background:#fff;color:var(--ink)}
+.btn.sm{padding:6px 13px;font-size:14px}
+.btn[disabled]{opacity:.4;cursor:not-allowed}
+.tile{background:var(--tile);border-radius:24px;padding:24px;min-width:0}
+.tile>h2{font-size:17px}
+.tile.hero{display:flex;flex-direction:column} .tile.hero .foot{margin-top:auto;padding-top:20px}
+.lab{color:var(--muted);font-size:14px}
+.sub{color:var(--muted);font-size:14px;margin-top:2px}
+.bento{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:14px}
+.s8{grid-column:span 8} .s7{grid-column:span 7} .s5{grid-column:span 5} .s4{grid-column:span 4} .s3{grid-column:span 3} .s6{grid-column:span 6} .s12{grid-column:span 12}
+.cols{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:14px;align-items:start}
+
+/* the week, one block per planned post */
+.big{font-size:92px;line-height:.92;font-weight:600;letter-spacing:-.06em;margin:10px 0 8px}
+.big small{font-size:34px;color:var(--faint);letter-spacing:-.04em;font-weight:500}
+.week{display:flex;gap:4px;margin:22px 0 14px}
+.week i{flex:1;height:52px;border-radius:7px;background:var(--well)}
+.week i:first-child{border-radius:16px 7px 7px 16px} .week i:last-child{border-radius:7px 16px 16px 7px}
+i.posted{background:var(--ink)} i.ready{background:#8C8F97} i.you{background:var(--hot)} i.blocked{background:repeating-linear-gradient(135deg,var(--bad) 0 5px,#E0786E 5px 10px)} i.gap{background:var(--well)}
+.legend{display:flex;flex-wrap:wrap;gap:8px 22px;font-size:14px;color:var(--soft)}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.legend i{width:11px;height:11px;border-radius:3px;display:block}
+.legend b{font-weight:600}
+.chrows{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 28px;margin-top:22px;padding-top:20px;border-top:1px solid var(--line)}
+.chrow{display:flex;align-items:center;gap:10px;font-size:14px}
+.chrow .nm{width:86px;flex:none;font-weight:500}
+.chrow .dots{display:flex;gap:4px;flex:1}
+.chrow .dots i{width:16px;height:16px;border-radius:50%;display:block}
+.chrow .v{color:var(--muted)}
+.foot{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:20px}
+.foot span{color:var(--muted);font-size:14px;flex:1 1 180px;min-width:0}
+
+.num{font-size:56px;line-height:1;font-weight:600;letter-spacing:-.05em;margin:8px 0 4px}
+.rows{display:flex;flex-direction:column;margin:12px -10px -10px}
+.row{display:flex;gap:12px;align-items:center;padding:12px 10px;border-top:1px solid var(--line)}
+.rows>.row:first-child{border-top-color:transparent}
+.row .txt{flex:1;min-width:0}
+.row .txt b{display:block;font-weight:500;line-height:1.3}
+.row .txt span{color:var(--muted);font-size:13.5px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .acts{display:flex;gap:6px;flex:none}
+.row.click{cursor:pointer} .row.click:hover{background:#F7F7F4;border-radius:14px;border-top-color:transparent} .row.click:hover+.row{border-top-color:transparent}
+.row.sel,.row.sel:hover{background:var(--ink);color:#fff;border-top-color:transparent;border-radius:14px} .row.sel+.row{border-top-color:transparent}
+.row.sel .txt span{color:#B9BCC3} .row.sel .btn{background:#fff;color:var(--ink)}
+.kind{flex:none;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:600;font-size:15px}
+.kind.block{background:var(--bad-soft);color:var(--bad)} .kind.agent{background:var(--agent-soft);color:var(--agent)}
+.kind.appr{background:var(--hot-soft);color:var(--hot-ink)} .kind.hand{background:var(--well);color:var(--ink)} .kind.task{background:var(--well);color:var(--muted)}
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:500;border-radius:999px;padding:2px 9px;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)} .pill.warn{background:var(--hot-soft);color:var(--hot-ink)} .pill.bad{background:var(--bad-soft);color:var(--bad)}
+.pill.agent{background:var(--agent-soft);color:var(--agent)} .pill.plain{background:var(--well);color:var(--muted)} .pill.acc{background:var(--ink);color:#fff}
+.ch{display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:500;white-space:nowrap}
+.ch i{width:9px;height:9px;border-radius:50%;background:var(--c);display:block}
+.empty{padding:34px 16px;color:var(--muted);text-align:center}
+.empty b{display:block;color:var(--ink);font-size:20px;font-weight:600;letter-spacing:-.02em;margin-bottom:2px}
+
+.sheetday{margin-top:14px}
+.slot{display:grid;grid-template-columns:78px 16px minmax(0,1fr);gap:0 10px}
+.slot time{font-weight:600;font-size:14px;padding-top:8px;color:var(--muted)}
+.slot .lineg{position:relative}
+.slot .lineg::before{content:"";position:absolute;left:7px;top:0;bottom:0;width:2px;background:var(--line)}
+.slot .lineg::after{content:"";position:absolute;left:2px;top:11px;width:12px;height:12px;border-radius:50%;background:var(--dot,var(--faint));box-shadow:0 0 0 4px var(--tile)}
+.slot .body{padding:6px 0 14px;min-width:0}
+.slot .body b{font-weight:500;display:block;line-height:1.3}
+.slot .body .m{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center;margin-top:4px}
+.nowmark{margin:0 0 8px 66px;border-top:2px solid var(--hot);position:relative;height:0}
+.nowmark span{position:absolute;right:0;top:-11px;background:var(--hot);color:#fff;font-size:11.5px;font-weight:600;border-radius:999px;padding:1px 9px}
+
+.agentile{background:var(--agent);color:#fff;display:flex;flex-direction:column}
+.agentile .lab{color:#D6CEFF}
+.agentile h2{font-size:22px;line-height:1.18;margin:10px 0 16px;letter-spacing:-.03em}
+.prog{display:flex;gap:5px;margin-bottom:8px}
+.prog i{flex:1;height:8px;border-radius:999px;background:rgb(255 255 255 / .28);display:block}
+.prog i.d{background:#fff}
+.prog i.r{background:#fff;animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.35}}
+.agentile .st{color:#E3DDFF;font-size:14px}
+.agentile ol{list-style:none;margin:16px 0 0;padding:0;display:flex;flex-direction:column;gap:8px;flex:1;font-size:14px;color:#D6CEFF}
+.agentile ol li{display:flex;gap:9px;align-items:flex-start}
+.agentile ol li::before{content:"";flex:none;width:16px;height:16px;border-radius:50%;margin-top:2px;box-shadow:inset 0 0 0 2px rgb(255 255 255 / .5)}
+.agentile ol li.d{color:#fff} .agentile ol li.d::before{background:#fff;box-shadow:none}
+.agentile ol li em{font-style:normal;background:rgb(255 255 255 / .18);border-radius:999px;padding:0 8px;font-size:12px;margin-left:4px;white-space:nowrap}
+.agentile .foot{margin-top:18px}
+.tile.sig{display:flex;flex-direction:column}
+.bars7{display:flex;align-items:flex-end;gap:6px;flex:1;min-height:90px;margin-top:16px}
+.bars7 i{flex:1;border-radius:6px 6px 2px 2px;background:var(--well);display:block}
+.bars7 i.t{background:var(--hot)}
+.days7{display:flex;gap:6px;margin-top:6px;font-size:12px;color:var(--faint)}
+.days7 span{flex:1;text-align:center}
+
+
+.tg{display:flex;flex-direction:column;gap:13px;margin-top:16px}
+.tl{display:flex;justify-content:space-between;gap:8px;font-size:13.5px;margin-bottom:5px}
+.tl span{color:var(--soft)} .tl b{font-weight:600;white-space:nowrap} .tl small{color:var(--faint);font-weight:400;font-size:13px}
+.tb{height:8px;border-radius:999px;background:var(--well);overflow:hidden} .tb i{display:block;height:100%;border-radius:999px;background:var(--hot)}
+.slot time{white-space:nowrap}
+.ev.ghost.blk{box-shadow:inset 0 0 0 1.5px var(--bad-soft);background:repeating-linear-gradient(135deg,#fff 0 6px,var(--bad-soft) 6px 12px);color:var(--bad)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.chip{border:0;background:var(--tile);border-radius:999px;padding:7px 14px;font-weight:500;font-size:14px;color:var(--soft)}
+.chip small{color:var(--faint);font-size:13px;margin-left:3px}
+.chip[aria-pressed="true"]{background:var(--ink);color:#fff}
+.detail{display:flex;flex-direction:column;gap:14px}
+.detail>.pill,.detail>.btnrow>.pill{align-self:flex-start}
+.detail h2{font-size:24px;line-height:1.15;letter-spacing:-.035em}
+.detail .why{color:var(--muted)}
+.steps{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:9px}
+.steps li{display:flex;gap:10px;align-items:flex-start}
+.steps li i{flex:none;width:22px;height:22px;border-radius:50%;background:var(--well);display:grid;place-items:center;font-style:normal;font-size:12px;font-weight:600;color:var(--muted)}
+.steps li.done i{background:var(--ink);color:#fff}
+.steps li.run i{background:var(--agent);color:#fff;animation:pulse 1s ease-in-out infinite}
+.steps li.pub b{color:var(--hot-ink);font-weight:500}
+.note{background:var(--canvas);border-radius:16px;padding:12px 14px;font-size:14px}
+.note b{font-weight:600}
+.note.bad{background:var(--bad-soft)} .note.agent{background:var(--agent-soft)} .note.ok{background:var(--ok-soft)}
+.cap{white-space:pre-wrap;overflow-wrap:anywhere;background:var(--canvas);border-radius:16px;padding:14px;font-size:14.5px}
+.field{display:flex;flex-direction:column;gap:6px;font-weight:500;font-size:14px}
+.in{border:1.5px solid var(--well);background:var(--tile);border-radius:14px;padding:10px 13px;width:100%;font-weight:400}
+.in:focus{outline:none;border-color:var(--ink)}
+textarea.in{min-height:140px;resize:vertical}
+.proof{display:inline-flex;gap:5px;align-items:center;font-size:13px;font-weight:500;color:var(--ok);background:var(--ok-soft);border-radius:999px;padding:2px 10px}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap}
+
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px}
+.day{background:var(--tile);border-radius:20px;padding:12px;display:flex;flex-direction:column;gap:6px;min-height:300px}
+.day.today{box-shadow:inset 0 0 0 2px var(--ink)}
+.day h3{font-size:14px;display:flex;justify-content:space-between;font-weight:600;letter-spacing:0;padding:2px 4px 6px}
+.day h3 span{color:var(--hot-ink);font-weight:500}
+.ev{border:0;text-align:left;background:var(--canvas);border-radius:12px;padding:8px 10px;font-size:13px;width:100%;display:block}
+.ev:hover{background:var(--well)}
+.ev b{display:block;font-weight:500;line-height:1.25;margin-bottom:3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ev small{color:var(--muted);display:flex;align-items:center;gap:5px;font-size:12px}
+.ev small i{width:8px;height:8px;border-radius:50%;background:var(--c);display:block;flex:none}
+.ev.blocked{background:var(--bad-soft)} .ev.you{background:var(--hot-soft)}
+.ev.ghost{background:none;box-shadow:inset 0 0 0 1.5px var(--well);color:var(--muted)}
+.ev.ghost b{font-weight:500} .ev.ghost:hover{background:var(--tile);box-shadow:inset 0 0 0 1.5px var(--ink);color:var(--ink)}
+
+.compose{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:14px;align-items:start}
+.form{display:flex;flex-direction:column;gap:16px}
+.plats{display:flex;flex-wrap:wrap;gap:6px}
+.plat{border:0;background:var(--canvas);border-radius:999px;padding:7px 13px;font-weight:500;font-size:14px;display:inline-flex;gap:7px;align-items:center}
+.plat i{width:9px;height:9px;border-radius:50%;background:var(--c);display:block}
+.plat[aria-pressed="true"]{background:var(--ink);color:#fff}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.checks{list-style:none;margin:12px 0 0;padding:0;display:flex;flex-direction:column;gap:8px;font-size:14px}
+.checks li{display:flex;gap:9px;align-items:flex-start}
+.checks li i{flex:none;width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-size:11px;font-weight:700}
+.checks .pass i{background:var(--ok-soft);color:var(--ok)} .checks .warn i{background:var(--warn-soft);color:var(--warn)} .checks .block i{background:var(--bad);color:#fff}
+.checks .block span{font-weight:500}
+.prev{display:flex;flex-direction:column;gap:12px;margin-top:12px}
+.pv{border-radius:18px;overflow:hidden;background:var(--canvas)}
+.pv header{display:flex;justify-content:space-between;gap:8px;padding:10px 14px;font-size:13px}
+.pv header span{color:var(--muted)}
+.pv header span.over{color:var(--bad);font-weight:600}
+.pv .media{aspect-ratio:16/5;max-width:100%;margin:0 10px;border-radius:12px;background:linear-gradient(135deg,var(--well),#DCDCD6);display:grid;place-items:center;color:var(--muted);font-size:12.5px}
+.pv .text{padding:10px 14px 14px;font-size:14px;white-space:pre-wrap;overflow-wrap:anywhere}
+.pv .text em{color:var(--muted);font-style:normal}
+.pv.chat .text{background:var(--tile);margin:0 10px 12px;border-radius:4px 16px 16px 16px}
+.ph{color:var(--faint)}
+
+.kpi .d{font-size:14px;font-weight:500}
+.up{color:var(--ok)} .down{color:var(--bad)}
+svg.spark{display:block;width:100%;height:44px;margin-top:14px}
+.tw{overflow-x:auto;margin:10px -8px 0}
+table{border-collapse:collapse;width:100%;font-size:14.5px}
+th{text-align:left;color:var(--muted);font-weight:500;font-size:13px;padding:8px;white-space:nowrap}
+td{padding:13px 8px;border-top:1px solid var(--line);vertical-align:top}
+td.num2,th.num2{text-align:right}
+.funnel{display:flex;flex-direction:column;gap:10px;margin:16px 0}
+.fn{display:grid;grid-template-columns:130px minmax(0,1fr) 54px;gap:12px;align-items:center;font-size:14px}
+.fn div{height:26px;border-radius:8px;background:var(--ink);min-width:4px}
+.fn:last-child div{background:var(--hot)}
+.fn b{text-align:right;font-weight:600}
+.why td:first-child{width:36%;color:var(--muted)}
+.why td b{display:block;font-weight:600;font-size:16px;letter-spacing:-.02em;margin-bottom:2px}
+.why .n{font-weight:600;color:var(--faint);width:36px}
+
+.scrim{position:absolute;inset:0;background:rgb(19 20 23 / .34);z-index:20;backdrop-filter:blur(2px)}
+.drawer{position:absolute;z-index:21;top:12px;right:12px;bottom:12px;width:min(460px,calc(100% - 24px));background:var(--tile);border-radius:28px;overflow:auto;padding:14px 26px 26px;animation:in .22s cubic-bezier(.2,.8,.2,1);box-shadow:0 30px 80px rgb(19 20 23 / .25)}
+.drawer .x{display:flex;justify-content:flex-end;margin:0 -12px 6px}
+@keyframes in{from{transform:translateX(30px);opacity:0}}
+@keyframes up{from{transform:translateY(30px);opacity:0}}
+.toasts{position:absolute;z-index:30;left:50%;bottom:22px;transform:translateX(-50%);display:flex;flex-direction:column;gap:8px;align-items:center;width:max-content;max-width:calc(100% - 24px)}
+.toast{background:var(--ink);color:#fff;border-radius:999px;padding:10px 18px;display:flex;gap:14px;align-items:center;font-size:14.5px;box-shadow:0 12px 30px rgb(19 20 23 / .3);animation:up .2s cubic-bezier(.2,.8,.2,1)}
+.toast button{border:0;background:none;color:#FFB7A3;font-weight:600;padding:0}
+@media (prefers-reduced-motion:reduce){ .drawer,.toast,.prog i.r,.steps li.run i{animation:none} }
+
+@container app (max-width:1080px){
+  .s8,.s7,.s5,.s4,.s3,.s6{grid-column:span 6}
+  .s8.hero{grid-column:span 12}
+  .big{font-size:76px}
+}
+@container app (max-width:860px){
+  .cols,.compose{grid-template-columns:minmax(0,1fr)}
+  .pills .opt{display:none}
+}
+@container app (max-width:640px){
+  .top{padding:12px 16px 2px}
+  .pills{display:none}
+  .wrap{padding:12px 14px 110px}
+  .head{margin-bottom:14px}
+  .head h1{font-size:27px}
+  .head p{font-size:15px}
+  .s8,.s7,.s5,.s4,.s3,.s6,.s8.hero{grid-column:span 12}
+  .tile{padding:18px;border-radius:22px}
+  .big{font-size:72px}
+  .big small{font-size:22px;display:block;line-height:1.15;margin-top:6px;letter-spacing:-.03em}
+  .head .btn.pri{display:none}
+  .week{gap:3px} .week i{height:40px;border-radius:5px}
+  .chrows{grid-template-columns:minmax(0,1fr)}
+  .tabs{display:flex;position:absolute;z-index:10;left:14px;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));background:var(--ink);border-radius:999px;padding:6px;box-shadow:0 14px 34px rgb(19 20 23 / .35)}
+  .tabs button{flex:1;border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:1px;font-size:10.5px;font-weight:500;color:#9A9EA7;padding:7px 2px;border-radius:999px;position:relative;min-height:48px}
+  .tabs button svg{width:21px;height:21px}
+  .tabs button[aria-current="page"]{color:#fff;background:#2A2C32}
+  .tabs button.plus{color:#fff} .tabs button.plus svg{background:var(--hot);border-radius:50%;padding:6px;width:36px;height:36px}
+  .tabs button.plus span{display:none}
+  .tabs .n{position:absolute;top:3px;left:54%;font-size:10px;font-weight:600;background:var(--hot);color:#fff;border-radius:999px;padding:0 5px}
+  .btn{min-height:42px}
+  .row .acts .second{display:none}
+  .cal{grid-template-columns:minmax(0,1fr)}
+  .day{min-height:0}
+  .drawer{top:auto;left:0;right:0;bottom:0;width:100%;max-height:88%;border-radius:28px 28px 0 0;padding:10px 20px 28px;animation:up .22s cubic-bezier(.2,.8,.2,1)}
+  .toasts{bottom:92px}
+  .pane{display:none}
+  .fn{grid-template-columns:104px minmax(0,1fr) 46px}
+  .two{grid-template-columns:1fr}
+  .why td:first-child{width:44%} .why .n{display:none}
+  .client span.nm{display:none} .client{padding:5px}
+}
+</style>
+
+<div class="strip">
+  <span class="about"><b>Relay</b> is a redesign concept for the Indrashikha Media portal, by Sreeuday Pothula. It shows Techwave Academy as the portal recorded it on 25 Nov 2026. Nothing here changes the real portal.</span>
+  <div class="seg viewsw" role="group" aria-label="View"><button id="vDesk" aria-pressed="true">Desktop</button><button id="vPhone" aria-pressed="false">Phone app</button></div>
+  <button class="link" id="reset">Reset demo</button>
+</div>
+<div class="stage" id="stage"><div class="device"><div class="app" id="app"></div></div></div>
+
+<script>
+(() => {
+const $ = (s, el = document) => el.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const DAYS = ['Mon 23','Tue 24','Wed 25','Thu 26','Fri 27','Sat 28','Sun 29'];
+const TODAY = 2, NOW = '15:00';
+// plan = posts per week from the approved plan; followers and day-30 targets as the portal showed them on 25 Nov 2026
+const CH = {
+  ig:{name:'Instagram', c:'#C13584', plan:7, limit:2200, kind:'feed', fol:4,  d7:0, tgt:300},
+  wa:{name:'WhatsApp',  c:'#1FA855', plan:5, limit:0,    kind:'chat', fol:20, d7:1, tgt:200},
+  tg:{name:'Telegram',  c:'#2A9FD8', plan:7, limit:4096, kind:'chat', fol:3,  d7:0, tgt:150},
+  yt:{name:'YouTube',   c:'#D93025', plan:2, limit:100,  kind:'video',fol:2,  d7:0, tgt:150},
+  fb:{name:'Facebook',  c:'#1877F2', plan:2, limit:63206,kind:'feed', fol:46, d7:6, tgt:null},
+  li:{name:'LinkedIn',  c:'#0A66C2', plan:2, limit:3000, kind:'feed', fol:20, d7:2, tgt:null},
+};
+const chip = k => `<span class="ch" style="--c:${CH[k].c}"><i></i>${CH[k].name}</span>`;
+const I = { today:'M4 6h16M4 12h10M4 18h7', inbox:'M4 13l2-8h12l2 8v6H4zM4 13h5a3 3 0 0 0 6 0h5', cal:'M4 6h16v14H4zM4 10h16M8 3v4M16 3v4', plus:'M12 5v14M5 12h14', more:'M5 12h.01M12 12h.01M19 12h.01' };
+const ico = k => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${I[k]}"/></svg>`;
+
+const seed = () => ({
+  ytBlocked:true,
+  posts:[
+    {id:201, t:'AI coding agents look smart, then fail at real work', ch:'tg', d:0, tm:'10:35', st:'published', cap:'AI coding agents look smart, then fail at real work. A new test put AI coding agents on real tasks…'},
+    {id:202, t:'Tell AI what it may do, and what it must not do', ch:'tg', d:0, tm:'16:55', st:'published', cap:'Tell AI what it may do, and what it must not do. AI gets messy when it tries to do everything…'},
+    {id:167, t:'linkedin post (to write)', ch:'li', d:0, tm:'19:45', st:'failed', cap:''},
+    {id:166, t:'linkedin post (to write)', ch:'li', d:-1, on:'Sun 22 Nov', late:3, tm:'19:45', st:'failed', cap:''},
+    {id:21, t:'Interview question of the day', ch:'wa', d:-1, on:'31 Oct', late:25, tm:'08:00', st:'hand', cap:'Today\'s interview question: "What\'s the difference between VLOOKUP and XLOOKUP?" Answer tomorrow on the channel. Try it yourself until then.\n{link}'},
+    {id:22, t:'Weekend challenge: 80% unlock', ch:'wa', d:-1, on:'1 Nov', late:24, tm:'10:00', st:'hand', cap:'Weekend challenge: take the quiz for any one Excel chapter and score 80%. At 80%, the certificate unlocks. Tell us your score.\n{link}'},
+    {id:23, t:'Tip: Power BI practice file', ch:'wa', d:-1, on:'3 Nov', late:22, tm:'10:00', st:'hand', cap:'Today\'s tip: in Power BI, clean the data first, then build the chart. The practice file is in the link.\n{link}'},
+    {id:25, t:'Interview question', ch:'wa', d:-1, on:'5 Nov', late:20, tm:'10:00', st:'hand', cap:'Interview question: "What\'s the difference between a dashboard and a report?" Think about it. Answer tomorrow.\n{link}'},
+    {id:29, t:'AI news reel: AI spending is nearing $1 trillion', ch:'fb', d:-1, on:'9 Nov', late:16, tm:'15:00', st:'hand', cap:'AI news: US tech stocks fell sharply as AI spending nears $1 trillion; the Nasdaq opened at its lowest level in more than two months. (Source: BBC, 30 Oct 2026)'},
+  ],
+  jobs:[
+    {id:129, t:'Cross-promote Telegram: pin the link on the other channels and the website', st:'needs_ok', risk:'Public, and can be undone', step:2,
+     steps:[['Checked the website: the Telegram link is already in the footer and on the links page',false],['Prepared the Facebook post with the "Follow us" card',false],['Publish and pin it on the other channels, then report proof',true]],
+     why:'Telegram has stayed at 3 members for 14 days. Cross-promotion is the plan\'s first fix.', proof:[]},
+    {id:101, t:'YouTube playlists and the first 2 long videos', st:'person', risk:'Needs a person', step:1,
+     steps:[['Looked for the Excel chapter 1 and Python Class 8 chapter 1 lectures',false],['Nothing to publish: the two long videos have not been recorded yet',false]],
+     why:'The agent cannot make two full lectures. Someone has to record them first.', proof:[]},
+    {id:131, t:'Check every open task and close the ones that are done', st:'done', risk:'Read-only', step:3,
+     steps:[['Read 9 open tasks',false],['Checked each against the live channels and the website',false],['Closed 0; 6 need a person',false]], why:'Runs each morning at 07:00.', proof:['9 tasks checked','Website links Telegram twice','0 YouTube playlists yet']},
+  ],
+  stuck:[[42,'Post: Excel in 60 seconds #1'],[76,'Post: Reel, overdue tasks that turn red by themselves'],[77,'Same reel, queued a second time'],[78,'Post: Certificate Friday #2'],[107,'Post: DAX basics (Instagram and Facebook went out, YouTube did not)'],[119,'Create 4 YouTube playlists']],
+  tasks:[
+    {id:13, t:'Find Tamil and Telugu caption reviewers', due:'due 9 Nov', late:16, done:false},
+    {id:14, t:'Choose two recurring presenters', due:'due 9 Nov', late:16, done:false},
+    {id:17, t:'Record the first 2 long YouTube videos', due:'due 16 Nov', late:9, done:false},
+    {id:15, t:'Set up the ad account and get the budget approved in writing', due:'due 20 Nov', late:5, done:false},
+    {id:49, t:'Build the launch ads in Ads Manager, paused', due:'due today', late:0, done:false},
+    {id:18, t:'First live doubt session and first paid test', due:'due Thu 26 Nov', late:0, done:false},
+    {id:50, t:'Launch ads go live, Thu 26 Nov at 12:00', due:'due Thu 26 Nov', late:0, done:false},
+  ],
+  filter:'all', sel:0, draft:null, sheet:null, toasts:[]
+});
+let S = seed();
+const VIEWS = ['today','inbox','calendar','compose','agent','results','channels','why'];
+const route = () => { const h = location.hash.slice(1); return VIEWS.includes(h) ? h : 'today'; };
+const go = v => { if (route() === v) render(); else location.hash = v; };
+const when = p => p.d < 0 ? p.on : `${DAYS[p.d]} Nov at ${p.tm}`;
+const link = p => 'media.indrashikha.com/go/tw-p' + p.id;
+
+/* ---------- derived data: one place computes what needs a person ---------- */
+function needs() {
+  const out = [];
+  if (S.ytBlocked) out.push({key:'b-yt', type:'block', title:'YouTube is signed in to the wrong Google account', sub:`${S.stuck.length} agent jobs are stuck on this one cause`, primary:['fixyt','Fix']});
+  S.jobs.filter(j => j.st === 'needs_ok').forEach(j => out.push({key:'j-'+j.id, type:'agent', id:j.id, title:'The agent needs your OK', sub:j.t, primary:['okjob','Approve'], second:['open','See steps']}));
+  S.posts.filter(p => p.st === 'failed').forEach(p => out.push({key:'f-'+p.id, type:'fail', id:p.id, title:'LinkedIn post was never written', sub:`"${p.t}", scheduled ${when(p)}`, primary:['open','Fix']}));
+  S.posts.filter(p => p.st === 'review').forEach(p => out.push({key:'p-'+p.id, type:'appr', id:p.id, title:'Approve: ' + p.t, sub:`${CH[p.ch].name}, ${when(p)}`, primary:['approve','Approve'], second:['open','Review']}));
+  S.posts.filter(p => p.st === 'hand').forEach(p => out.push({key:'h-'+p.id, type:'hand', id:p.id, title:`Post by hand to ${CH[p.ch].name}`, sub:`${p.t}, due ${p.on}, ${p.late} days late`, primary:['open','Post']}));
+  S.tasks.filter(t => !t.done).forEach(t => out.push({key:'t-'+t.id, type:'task', id:t.id, title:t.t, sub:t.late ? `${t.due}, ${t.late} days late` : t.due, primary:['donetask','Done']}));
+  return out;
+}
+// Today shows one row per cause or kind, so a long list becomes a few decisions
+function grouped() {
+  const all = needs(), by = t => all.filter(n => n.type === t), out = [];
+  const grp = (t, title, sub, label) => { const g = by(t); if (g.length > 1) out.push({key:'g-'+t, type:t, title:title(g), sub:sub(g), primary:['review'+t, label]}); else out.push(...g); };
+  out.push(...by('block'), ...by('agent'));
+  grp('fail', g => `${g.length} LinkedIn posts were scheduled without being written`, () => 'Both are titled "linkedin post (to write)" with an empty caption', 'Fix');
+  grp('appr', g => `${g.length} posts wait for approval`, g => g.map(n => n.title.replace('Approve: ', '')).join(', '), 'Review');
+  grp('hand', g => `${g.length} posts by hand are 16 to 25 days late`, () => 'Post them now or retire them. Four WhatsApp, one Facebook.', 'Review');
+  grp('task', g => `${g.length} tasks for you, ${S.tasks.filter(t => !t.done && t.late).length} overdue`, () => 'Next: build the launch ads today; they go live Thursday 12:00', 'Open');
+  return out;
+}
+const KIND = {block:['block','!'], fail:['block','!'], agent:['agent','✦'], appr:['appr','✓'], hand:['hand','⧉'], task:['task','□']};
+const week = () => S.posts.filter(p => p.d >= 0);
+function emptySlots() { const load = DAYS.map((_, i) => week().filter(p => p.d === i).length), out = []; for (const k of Object.keys(CH)) { let need = CH[k].plan - week().filter(p => p.ch === k).length; while (need-- > 0) { let best = TODAY; for (let i = TODAY; i < 7; i++) if (load[i] < load[best]) best = i; load[best]++; out.push([k, best]); } } return out; }
+const gaps = () => emptySlots().filter(([k]) => !(k === 'yt' && S.ytBlocked)).length;
+function slotState(p) { return p.st === 'published' ? 'posted' : p.st === 'scheduled' ? 'ready' : 'you'; }
+function weekState() {
+  const per = {}, all = [];
+  for (const k of Object.keys(CH)) { const ps = week().filter(p => p.ch === k).map(slotState); const n = Math.max(CH[k].plan, ps.length); per[k] = Array.from({length:n}, (_, i) => ps[i] || (k === 'yt' && S.ytBlocked ? 'blocked' : 'gap')); all.push(...per[k]); }
+  const order = ['posted','ready','you','blocked','gap']; all.sort((x, y) => order.indexOf(x) - order.indexOf(y));
+  const c = Object.fromEntries(order.map(o => [o, all.filter(x => x === o).length]));
+  return {per, all, c};
+}
+
+/* ---------- actions: every change is instant and can be undone ---------- */
+function toast(msg, undo) { const t = {id:Math.random(), msg, undo}; S.toasts.push(t); render(); setTimeout(() => { S.toasts = S.toasts.filter(x => x !== t); render(); }, undo ? 6000 : 3600); }
+function change(msg, fn) { const snap = JSON.stringify({ytBlocked:S.ytBlocked, posts:S.posts, jobs:S.jobs, tasks:S.tasks, stuck:S.stuck}); fn(); toast(msg, () => { Object.assign(S, JSON.parse(snap)); S.toasts = []; render(); }); }
+const post = id => S.posts.find(p => p.id == id);
+const job = id => S.jobs.find(j => j.id == id);
+const toInbox = f => { S.filter = f; S.sel = 0; go('inbox'); };
+const ACT = {
+  go: v => { S.sheet = null; go(v); },
+  filter: f => { S.filter = f; S.sel = 0; render(); },
+  open: key => { S.sheet = key; render(); },
+  close: () => { S.sheet = null; render(); },
+  fixyt: () => { S.sheet = 'b-yt'; render(); },
+  reviewfail: () => toInbox('block'), reviewappr: () => toInbox('appr'), reviewhand: () => toInbox('hand'), reviewtask: () => toInbox('task'),
+  recheck: () => { const n = S.stuck.length; S.sheet = null; change(`YouTube reconnected. ${n} jobs are back in the agent's queue.`, () => { S.ytBlocked = false; S.stuck = []; }); },
+  approve: id => { S.sheet = null; change('Approved. It goes out at its scheduled time.', () => { post(id).st = 'scheduled'; }); },
+  reject: id => { const note = $('#rejnote')?.value.trim(); if (!note) { $('#rejnote')?.focus(); return toast('Add a short note so the writer knows what to change.'); } S.sheet = null; change('Sent back to the writer with your note.', () => { const p = post(id); p.st = 'draft'; p.note = note; }); },
+  posted: id => { const url = $('#posturl')?.value.trim(); S.sheet = null; change('Marked as posted.', () => { const p = post(id); p.st = 'published'; p.url = url; }); },
+  retire: id => { S.sheet = null; change('Retired. It leaves every list and stays in the history.', () => { S.posts = S.posts.filter(p => p.id != id); }); },
+  copy: id => { const p = post(id), txt = p.cap.replace('{link}', link(p)); const done = () => toast('Caption copied. Paste it into ' + CH[p.ch].name + '.'); try { navigator.clipboard.writeText(txt).then(done, done); } catch { done(); } },
+  donetask: id => change('Task marked done.', () => { S.tasks.find(t => t.id == id).done = true; }),
+  okjob: id => { S.sheet = null; const j = job(id); j.st = 'running'; toast('Approved. The agent continues now.'); tick(j); },
+  fill: () => change(`${gaps()} draft slots created from the plan.`, () => { let nid = Math.max(...S.posts.map(p => p.id)) + 1; for (const [k, d] of emptySlots()) if (!(k === 'yt' && S.ytBlocked)) S.posts.push({id:nid++, t:'Draft for ' + CH[k].name, ch:k, d, tm:'18:00', st:'draft', cap:''}); }),
+  ghost: arg => { const [k, d] = arg.split(':'); if (k === 'yt' && S.ytBlocked) return ACT.fixyt(); S.draft = {t:'', cap:'', chs:[k], d:+d, tm:'18:00'}; go('compose'); },
+  editpost: id => { const p = post(id); S.sheet = null; S.draft = {id:p.id, t:p.t, cap:p.cap, chs:[p.ch], d:Math.max(p.d, TODAY), tm:p.tm}; go('compose'); },
+  plat: k => { const d = S.draft; d.chs = d.chs.includes(k) ? d.chs.filter(x => x !== k) : [...d.chs, k]; render(); },
+  aidraft: () => { const d = S.draft; const topic = d.t.trim() && !/to write/i.test(d.t) ? d.t.trim() : 'This week\'s lesson'; d.cap = `${topic}: here is the one thing to remember.\n\nTry it on your own file for two minutes, then tell us what happened.\n\nThe full course is free: {link}`; render(); toast('Sample draft added. In the product this comes from the model, checked against the brand kit.'); },
+  send: () => { const d = S.draft, res = checks(d); if (res.some(c => c[0] === 'block')) return; change(d.chs.length > 1 ? `${d.chs.length} posts sent for approval.` : 'Sent for approval.', () => { let nid = Math.max(...S.posts.map(p => p.id)) + 1; if (d.id) S.posts = S.posts.filter(p => p.id !== d.id); d.chs.forEach(k => S.posts.push({id:nid++, t:d.t.trim(), ch:k, d:d.d, tm:d.tm, st:'review', cap:d.cap})); S.draft = null; }); toInbox('appr'); },
+  summary: () => { const w = weekState(); const txt = `Techwave Academy, week of 23 Nov: ${w.c.posted} of ${w.all.length} planned posts out so far. 41 sign-ups this week, 0 traced to social, 17 via AI assistants. Followers 95 across 6 channels. Blocking: YouTube sign-in.`; const done = () => toast('Weekly summary copied. Paste it into WhatsApp.'); try { navigator.clipboard.writeText(txt).then(done, done); } catch { done(); } },
+};
+function tick(j) { render(); if (j.step >= j.steps.length) { j.st = 'done'; j.proof = ['Simulated here: the real agent reports links as proof']; render(); return toast('Agent finished. In the product, proof links appear on the job.'); } setTimeout(() => { if (j.st !== 'running') return; j.step++; tick(j); }, 1300); }
+
+/* ---------- views ---------- */
+const head = (h, p, acts = '') => `<div class="head"><div><h1>${h}</h1><p>${p}</p></div>${acts}</div>`;
+const actBtn = (a, key, cls = '') => a ? `<button class="btn sm ${cls}" data-act="${a[0]}" data-arg="${esc(key)}">${a[1]}</button>` : '';
+function needRow(n, i, selectable) {
+  const [c, s] = KIND[n.type]; const arg = a => a[0] === 'open' ? n.key : (n.id ?? '');
+  return `<div class="row ${selectable ? 'click' : ''} ${selectable && i === S.sel ? 'sel' : ''}" ${selectable ? `data-act="pick" data-arg="${i}"` : ''}><span class="kind ${c}" aria-hidden="true">${s}</span><div class="txt"><b>${esc(n.title)}</b><span>${esc(n.sub)}</span></div><div class="acts">${n.second ? actBtn(n.second, arg(n.second), 'second') : ''}${actBtn(n.primary, arg(n.primary), n.type === 'agent' ? 'agent' : 'pri')}</div></div>`;
+}
+function vToday() {
+  const ns = grouped(), raw = needs().length + (S.ytBlocked ? S.stuck.length - 1 : 0);
+  const w = weekState(), total = w.all.length, good = w.c.posted + w.c.ready;
+  const g = gaps(), j = S.jobs.find(x => x.st === 'needs_ok') || S.jobs.find(x => x.st === 'running') || S.jobs[0];
+  const L = [['posted','Posted'],['ready','Scheduled, posts itself'],['you','Waiting on a person'],['blocked','Blocked'],['gap','Not written yet']];
+  const NEXT = [['Today','Build the two launch ads in Ads Manager, paused','You','var(--hot)'],['Thu 12:00','Launch ads go live','You','var(--hot)'],['Thu','First live doubt session, 30 minutes','You','var(--hot)'],['Sat','Telegram cross-promotion is due','Agent, waiting for your OK','var(--agent)'],['Tue 1 Dec','Day-5 ad review: scale or stop','Agent does it','var(--agent)']];
+  const T = [['Sign-ups from social, a week',0,5],['Instagram followers',4,300],['WhatsApp followers',20,200],['YouTube subscribers',2,150],['Telegram members',3,150]];
+  return head('Wednesday, 25 November', `${ns.length} decisions today. No posts are scheduled for the rest of the week yet.`, `<button class="btn pri" data-act="go" data-arg="compose">New post</button>`) +
+  `<div class="bento">
+    <section class="tile s8 hero"><div class="lab">This week, one block per post in the plan</div>
+      <div class="big">${good}<small> of ${total} planned posts are out or ready</small></div>
+      <div class="week" role="img" aria-label="${L.map(l => w.c[l[0]] + ' ' + l[1]).join(', ')}">${w.all.map(x => `<i class="${x}"></i>`).join('')}</div>
+      <div class="legend">${L.filter(l => w.c[l[0]]).map(l => `<span><i class="${l[0]}"></i><b>${w.c[l[0]]}</b> ${l[1]}</span>`).join('')}</div>
+      <div class="chrows">${Object.keys(CH).map(k => `<div class="chrow"><span class="nm">${CH[k].name}</span><span class="dots">${w.per[k].map(x => `<i class="${x}"></i>`).join('')}</span><span class="v">${w.per[k].filter(x => x === 'posted' || x === 'ready').length} of ${CH[k].plan}</span></div>`).join('')}</div>
+      <div class="foot"><span>${g ? `${g} posts in the plan have no draft yet.` : 'Every post in the plan has a draft or better.'}</span>${g ? `<button class="btn sm" data-act="fill">Create ${g} draft slots</button>` : ''}<button class="btn sm" data-act="go" data-arg="calendar">Open calendar</button></div>
+    </section>
+    <section class="tile s4"><div class="lab">Needs you</div><div class="num">${ns.length}</div><p class="sub">${ns.length ? `The portal's inbox shows 32 items. Without the repeats, and grouped by cause, that is ${ns.length} ${ns.length === 1 ? 'decision' : 'decisions'}.` : 'Each item appears once.'}</p>
+      <div class="rows">${ns.map(n => needRow({...n, second:null})).join('') || `<div class="empty"><b>All clear</b>Nothing is waiting on a person.</div>`}</div></section>
+    <section class="tile s5"><h2>Coming up</h2><p class="sub">The next dated things, and who does each one.</p><div class="sheetday">${NEXT.map(n => `<div class="slot" style="--dot:${n[3]}"><time>${n[0]}</time><span class="lineg"></span><div class="body"><b>${n[1]}</b><div class="m"><span class="pill ${n[3].includes('agent') ? 'agent' : 'warn'}">${n[2]}</span></div></div></div>`).join('')}</div></section>
+    <section class="tile s4 agentile"><div class="lab">✦ Agent, job #${j.id}</div><h2>${esc(j.t)}</h2>
+      <div class="prog">${j.steps.map((_, i) => `<i class="${i < j.step ? 'd' : j.st === 'running' && i === j.step ? 'r' : ''}"></i>`).join('')}</div>
+      <p class="st">${j.st === 'needs_ok' ? `Step ${j.step} of ${j.steps.length} done. The last step is public, so it is waiting for you.` : j.st === 'running' ? `Working on step ${Math.min(j.step + 1, j.steps.length)} of ${j.steps.length}.` : j.st === 'person' ? 'Stopped: this one needs a person.' : 'Finished and verified.'}</p>
+      <ol>${j.steps.map((st, i) => `<li class="${i < j.step ? 'd' : ''}"><span>${esc(st[0])}${st[1] && i >= j.step ? '<em>public</em>' : ''}</span></li>`).join('')}</ol>
+      <div class="foot">${j.st === 'needs_ok' ? `<button class="btn lite sm" data-act="okjob" data-arg="${j.id}">Approve</button>` : ''}<button class="btn sm lite" data-act="open" data-arg="j-${j.id}">See steps</button></div></section>
+    <section class="tile s3"><div class="lab">Day-30 targets from the plan</div>
+      <div class="tg">${T.map(t => `<div><div class="tl"><span>${t[0]}</span><b>${t[1]} <small>of ${t[2]}</small></b></div><div class="tb"><i style="width:${Math.max(1.5, t[1] / t[2] * 100)}%"></i></div></div>`).join('')}</div>
+      <p class="sub" style="margin-top:14px">Day 30 was 20 November.</p></section>
+  </div>`;
+}
+function detail(key) {
+  if (!key) return '';
+  const [t, id] = key.split('-');
+  if (t === 'b') return `<div class="detail"><span class="pill bad">Blocking ${S.stuck.length} agent jobs</span><h2>YouTube is signed in to the wrong Google account</h2><p class="why">The browser on the publishing computer is signed in to the Master GDS Google account, so YouTube Studio refuses every Techwave upload. The portal reports this once per job. It is one cause with one fix.</p>
+    <ol class="steps"><li><i>1</i><span>On the publishing computer, open YouTube Studio.</span></li><li><i>2</i><span>Sign in with the Techwave Academy Google account.</span></li><li><i>3</i><span>Come back here and press Recheck.</span></li></ol>
+    <div class="note"><b>Stuck on this cause</b><br>${S.stuck.map(x => '#' + x[0] + ' ' + esc(x[1])).join('<br>') || 'Nothing'}</div>
+    <div class="btnrow"><button class="btn pri" data-act="recheck">I've signed in. Recheck</button></div></div>`;
+  if (t === 'j') { const j = job(id); return `<div class="detail"><span class="pill agent">✦ Agent job #${j.id}</span><h2>${esc(j.t)}</h2><p class="why">${esc(j.why)}</p>
+    <ol class="steps">${j.steps.map((s, i) => `<li class="${i < j.step ? 'done' : j.st === 'running' && i === j.step ? 'run' : ''} ${s[1] ? 'pub' : ''}"><i>${i < j.step ? '✓' : i + 1}</i><span>${esc(s[0])}${s[1] && i >= j.step ? ' <b>(public)</b>' : ''}</span></li>`).join('')}</ol>
+    <div class="note agent"><b>Risk: ${esc(j.risk)}</b><br>The agent never enters passwords, never spends money and never deletes. Public steps always wait for a person.</div>
+    ${j.proof.length ? `<div class="btnrow">${j.proof.map(p => `<span class="proof">✓ ${esc(p)}</span>`).join('')}</div>` : ''}
+    ${j.st === 'needs_ok' ? `<div class="btnrow"><button class="btn agent" data-act="okjob" data-arg="${j.id}">Approve the public step</button></div>` : j.st === 'running' ? '<span class="pill agent">Working…</span>' : ''}</div>`; }
+  if (t === 'f') { const p = post(id); return `<div class="detail"><span class="pill bad">Failed on LinkedIn</span><h2>This post was scheduled before anyone wrote it</h2><p class="why">Its title is "${esc(p.t)}" and the caption is empty. It was scheduled for ${when(p)}, LinkedIn had nothing to publish, and it has been sitting in three lists since.</p>
+    <div class="note ok"><b>How Relay stops this</b><br>A placeholder title or an empty caption cannot be sent for approval. Try it in New post.</div>
+    <div class="btnrow"><button class="btn pri" data-act="editpost" data-arg="${p.id}">Write it now</button><button class="btn" data-act="retire" data-arg="${p.id}">Remove it</button></div></div>`; }
+  if (t === 'p') { const p = post(id); const flag = /guarantee|100%|#1\b/i.test(p.cap); return `<div class="detail"><span class="pill warn">Waiting for approval</span><h2>${esc(p.t)}</h2><p class="why">${chip(p.ch)} &nbsp;${when(p)} IST</p>
+    <div class="cap">${esc(p.cap.replace('{link}', link(p)))}</div>
+    ${flag ? '<div class="note bad"><b>Check this claim</b><br>"Guaranteed" is not in the approved claims list. Remove it or send the post back.</div>' : '<div class="note ok">All publish checks pass: tracked link, length, approved claims, no duplicate this week.</div>'}
+    <label class="field">Note for the writer (needed to send back)<input class="in" id="rejnote" placeholder="What should change?"></label>
+    <div class="btnrow"><button class="btn pri" data-act="approve" data-arg="${p.id}">Approve</button><button class="btn" data-act="reject" data-arg="${p.id}">Send back</button><button class="btn" data-act="editpost" data-arg="${p.id}">Edit</button></div></div>`; }
+  if (t === 'h') { const p = post(id); return `<div class="detail"><span class="pill bad">${p.late} days late</span><h2>${esc(p.t)}</h2><p class="why">${chip(p.ch)} &nbsp;was due ${p.on}. ${p.ch === 'wa' ? 'WhatsApp Channels have no posting API, so a person posts it.' : 'This one is waiting for a person to post it.'} After this long, decide: post it now or retire it.</p>
+    <div class="cap">${esc(p.cap.replace('{link}', link(p)))}</div>
+    <div class="btnrow"><button class="btn pri" data-act="copy" data-arg="${p.id}">Copy caption</button><button class="btn" data-act="retire" data-arg="${p.id}">Retire this post</button></div>
+    <label class="field">Link to the live post (optional, used as proof)<input class="in" id="posturl" placeholder="Paste the post link"></label>
+    <div><button class="btn" data-act="posted" data-arg="${p.id}">Mark as posted</button></div></div>`; }
+  if (t === 't') { const k = S.tasks.find(x => x.id == id); return `<div class="detail"><span class="pill ${k.late ? 'bad' : 'plain'}">${k.late ? k.late + ' days late' : 'Task'}</span><h2>${esc(k.t)}</h2><p class="why">${esc(k.due)}</p><div><button class="btn pri" data-act="donetask" data-arg="${k.id}">Mark done</button></div></div>`; }
+  if (t === 'q') { const p = post(id); const stl = {published:['ok','Posted'], scheduled:['ok','Scheduled, posts itself'], failed:['bad','Failed: never written'], hand:['acc','You post by hand'], review:['warn','Waiting for approval'], draft:['plain','Draft']}[p.st]; return `<div class="detail"><span class="pill ${stl[0]}">${stl[1]}</span><h2>${esc(p.t)}</h2><p class="why">${chip(p.ch)} &nbsp;${when(p)} IST</p>${p.cap ? `<div class="cap">${esc(p.cap.replace('{link}', link(p)))}</div>` : '<div class="note">No caption yet.</div>'}${p.note ? `<div class="note"><b>Reviewer's note</b><br>${esc(p.note)}</div>` : ''}<div class="btnrow">${p.st === 'published' ? '' : `<button class="btn pri" data-act="editpost" data-arg="${p.id}">${p.st === 'draft' || p.st === 'failed' ? 'Write this post' : 'Edit'}</button>`}</div></div>`; }
+  return '';
+}
+function vInbox() {
+  const all = needs(), F = [['all','All'],['block','Problems'],['agent','Agent'],['appr','Approvals'],['hand','By hand'],['task','Tasks']];
+  const inF = (n, f) => f === 'all' || n.type === f || (f === 'block' && n.type === 'fail');
+  const list = all.filter(n => inF(n, S.filter));
+  S.sel = Math.min(S.sel, Math.max(0, list.length - 1));
+  S._list = list;
+  return head('Inbox', `${all.length} items need a person. Stuck agent jobs with one cause count once.`) +
+  `<div class="chips">${F.map(([k, l]) => `<button class="chip" aria-pressed="${S.filter === k}" data-act="filter" data-arg="${k}">${l}<small>${all.filter(n => inF(n, k)).length}</small></button>`).join('')}</div>
+  <div class="cols"><section class="tile"><div class="rows" style="margin-top:-10px">${list.map((n, i) => needRow(n, i, true)).join('') || `<div class="empty"><b>Nothing here</b>Pick another filter.</div>`}</div></section>
+  <section class="tile pane">${list[S.sel] ? detail(list[S.sel].key) : `<div class="empty"><b>Inbox zero</b>New items arrive here the moment they need you.</div>`}</section></div>`;
+}
+function vCalendar() {
+  const cols = DAYS.map((d, i) => ({d, i, ps:week().filter(p => p.d === i).sort((a, b) => a.tm.localeCompare(b.tm)), ghosts:[]}));
+  for (const [k, d] of emptySlots()) cols[d].ghosts.push(k);
+  const stt = {published:'Posted', scheduled:'Scheduled', failed:'Failed, never written', hand:'By hand', review:'In review', draft:'Draft'};
+  return head('Calendar', `Week of 23 November, times in IST. Outlined cards are posts the plan expects that nobody has written yet. Click one to write it.`, `<button class="btn pri" data-act="go" data-arg="compose">New post</button>`) +
+  `<div class="cal">${cols.map(c => `<div class="day ${c.i === TODAY ? 'today' : ''}"><h3><b>${c.d}</b>${c.i === TODAY ? '<span>Today</span>' : ''}</h3>${c.ps.map(p => `<button class="ev ${p.st === 'failed' ? 'blocked' : ['review','hand','draft'].includes(p.st) ? 'you' : ''}" style="--c:${CH[p.ch].c}" data-act="open" data-arg="${p.st === 'failed' ? 'f' : 'q'}-${p.id}"><b>${esc(p.t)}</b><small><i></i>${p.tm} ${CH[p.ch].name}, ${stt[p.st]}</small></button>`).join('')}${c.ghosts.map(k => k === 'yt' && S.ytBlocked ? `<button class="ev ghost blk" style="--c:${CH[k].c}" data-act="ghost" data-arg="${k}:${c.i}"><b>YouTube</b><small><i></i>Blocked by sign-in</small></button>` : `<button class="ev ghost" style="--c:${CH[k].c}" data-act="ghost" data-arg="${k}:${c.i}"><b>+ ${CH[k].name}</b><small><i></i>Planned, not written</small></button>`).join('')}${!c.ps.length && !c.ghosts.length ? '<p class="ph" style="padding:4px;font-size:13px">Nothing recorded for this day.</p>' : ''}</div>`).join('')}</div>`;
+}
+function checks(d) {
+  const out = [], t = d.t.trim(), cap = d.cap.trim();
+  out.push(!t ? ['block','Give the post a title.'] : /to write|tbd|todo|untitled/i.test(t) ? ['block','The title is still a placeholder. Placeholders cannot be scheduled.'] : ['pass','Title is set.']);
+  out.push(!cap ? ['block','Write the caption.'] : ['pass','Caption is written.']);
+  out.push(!d.chs.length ? ['block','Choose at least one channel.'] : ['pass', `Going to ${d.chs.map(k => CH[k].name).join(', ')}.`]);
+  if (d.chs.includes('yt') && S.ytBlocked) out.push(['warn','YouTube is blocked by the sign-in problem. This will wait until that is fixed.']);
+  if (cap) {
+    out.push(cap.includes('{link}') ? ['pass','Tracked link is in the caption.'] : ['warn','No {link} in the caption, so clicks and sign-ups cannot be traced to this post.']);
+    const over = d.chs.filter(k => CH[k].limit && k !== 'yt' && cap.length > CH[k].limit);
+    if (over.length) out.push(['block', `Too long for ${over.map(k => CH[k].name).join(', ')}.`]);
+    if (d.chs.includes('yt') && t.length > 100) out.push(['block','YouTube titles stop at 100 characters.']);
+    if (/guarantee|100%|#1\b/i.test(cap)) out.push(['warn','"Guaranteed" or "100%" is not in the approved claims list.']);
+    const dup = S.posts.find(p => p.id !== d.id && p.cap.trim() === cap && d.chs.includes(p.ch));
+    if (dup) out.push(['block', `The same caption is already on ${CH[dup.ch].name} for ${when(dup)}. Posting it twice is blocked.`]);
+  }
+  if (d.d < TODAY || (d.d === TODAY && d.tm <= NOW)) out.push(['warn','That time has passed. It will go out as soon as it is approved.']);
+  return out;
+}
+function side(d) {
+  const cs = checks(d), cap = d.cap.replace('{link}', 'media.indrashikha.com/go/tw-new');
+  const cut = (s, n) => s.length > n ? esc(s.slice(0, n)) + '<em>… more</em>' : esc(s);
+  const pv = k => { const c = CH[k], len = k === 'yt' ? d.t.length : d.cap.length, cnt = c.limit ? `<span class="${len > c.limit ? 'over' : ''}">${len.toLocaleString('en-IN')} of ${c.limit.toLocaleString('en-IN')}${k === 'yt' ? ' title' : ''}</span>` : `<span>${len.toLocaleString('en-IN')} characters</span>`;
+    const body = k === 'yt' ? `<div class="media">Vertical video, 9:16</div><div class="text"><b>${esc(d.t) || '<span class="ph">Video title</span>'}</b></div>` : c.kind === 'chat' ? `<div class="text">${cap ? esc(cap) : '<span class="ph">Your message appears here</span>'}</div>` : `<div class="media">Image or reel</div><div class="text">${cap ? cut(cap, k === 'ig' ? 125 : k === 'li' ? 210 : 480) : '<span class="ph">Your caption appears here</span>'}</div>`;
+    return `<div class="pv ${c.kind === 'chat' ? 'chat' : ''}"><header>${chip(k)}${cnt}</header>${body}</div>`; };
+  const blocked = cs.some(c => c[0] === 'block');
+  return `<h2>Publish checks</h2><ul class="checks">${cs.map(c => `<li class="${c[0]}"><i>${c[0] === 'pass' ? '✓' : c[0] === 'warn' ? '!' : '✕'}</i><span>${esc(c[1])}</span></li>`).join('')}</ul>
+    <div class="foot"><span>${blocked ? 'Fix the red items to continue.' : 'Ready. A person approves before anything goes out.'}</span><button class="btn pri" data-act="send" ${blocked ? 'disabled' : ''}>Send for approval</button></div>
+    <h2 style="margin-top:26px">How it will look</h2><div class="prev">${d.chs.map(pv).join('') || '<p class="ph">Choose a channel to see the preview.</p>'}</div>`;
+}
+function vCompose() {
+  const d = S.draft || (S.draft = {t:'', cap:'', chs:['ig'], d:TODAY + 1, tm:'18:00'});
+  return head(d.id ? 'Write this post' : 'New post', 'Write once. Each channel shows its own preview and limit as you type.') +
+  `<div class="compose"><section class="tile form">
+    <div class="field">Post to<div class="plats">${Object.keys(CH).map(k => `<button class="plat" style="--c:${CH[k].c}" aria-pressed="${d.chs.includes(k)}" data-act="plat" data-arg="${k}"><i></i>${CH[k].name}</button>`).join('')}</div></div>
+    <label class="field">Title (for the team, and the YouTube title)<input class="in" id="ft" value="${esc(d.t)}" placeholder="e.g. Excel in 60 seconds: remove duplicates"></label>
+    <label class="field">Caption <textarea class="in" id="fc" placeholder="Write the caption. Put {link} where the tracked link should go.">${esc(d.cap)}</textarea></label>
+    <div><button class="btn sm agent" data-act="aidraft">✦ Draft with AI</button></div>
+    <div class="two"><label class="field">Day<select class="in" id="fd">${DAYS.map((x, i) => `<option value="${i}" ${i === d.d ? 'selected' : ''}>${x} Nov${i === TODAY ? ' (today)' : ''}</option>`).join('')}</select></label>
+    <label class="field">Time (IST)<input class="in" id="ftm" type="time" value="${d.tm}"></label></div>
+  </section><section class="tile" id="side">${side(d)}</section></div>`;
+}
+function vAgent() {
+  const P = {needs_ok:['warn','Needs your OK'], running:['agent','Working'], done:['ok','Done, verified'], person:['bad','Needs a person']};
+  const row = j => `<div class="row click" data-act="open" data-arg="j-${j.id}"><span class="kind agent" aria-hidden="true">✦</span><div class="txt"><b>${esc(j.t)}</b><span>#${j.id}. Step ${Math.min(j.step, j.steps.length)} of ${j.steps.length}. ${esc(j.risk)}.</span>${j.proof.length ? `<div class="btnrow" style="margin-top:6px">${j.proof.map(p => `<span class="proof">✓ ${esc(p)}</span>`).join('')}</div>` : ''}</div><div class="acts"><span class="pill ${P[j.st][0]}">${P[j.st][1]}</span>${j.st === 'needs_ok' ? `<button class="btn sm agent" data-act="okjob" data-arg="${j.id}">Approve</button>` : ''}</div></div>`;
+  const grp = S.ytBlocked ? `<div class="row click" data-act="open" data-arg="b-yt"><span class="kind block" aria-hidden="true">!</span><div class="txt"><b>${S.stuck.length} jobs are stuck on one cause: the YouTube sign-in</b><span>${S.stuck.map(x => '#' + x[0]).join(', ')}. Fix the sign-in once and all of them resume.</span></div><div class="acts"><button class="btn sm pri" data-act="fixyt">Fix</button></div></div>` : '';
+  return head('Agent', 'Hand any task, failed post or recommendation to the agent. It reports each step and proves the result.') +
+  `<div class="cols"><section class="tile"><div class="rows" style="margin-top:-10px">${row(S.jobs[0])}${grp}${S.jobs.slice(1).map(row).join('')}</div></section>
+  <section class="tile"><h2>What the agent may do alone</h2><div class="detail" style="margin-top:14px">
+    <div class="note ok"><b>Does it without asking</b><br>Reading, checking, and private drafts. Nothing leaves the building.</div>
+    <div class="note agent"><b>Asks first</b><br>Anything public that can be undone: a pin, a bio link, a scheduled post.</div>
+    <div class="note bad"><b>Never</b><br>Spending money, deleting, or typing a password. A person does these.</div>
+    <p class="why">Asking for approval on everything teaches people to approve without reading. So approval is saved for the steps where it matters.</p></div></section></div>`;
+}
+function vResults() {
+  const w = weekState(), fol = Object.values(CH).reduce((n, c) => n + c.fol, 0);
+  const K = [['Sign-ups traced to social','0','Target for day 30 was 5 a week','down'],['All sign-ups this week','41','17 came through AI assistants','up'],['Tracked link clicks','1','Same as last week',''],['Followers, 6 channels',String(fol),'+9 in the last 7 days','up']];
+  const src = [['Direct and other',24,'var(--ink)'],['AI assistants',17,'var(--agent)'],['Social and messaging',0,'var(--hot)']];
+  return head('Results', 'Week of 23 November, as the portal recorded it. Every figure has one definition, stated on this screen.', `<button class="btn" data-act="summary">Copy weekly summary</button>`) +
+  `<div class="bento" style="margin-bottom:14px">${K.map(k => `<div class="tile s3 kpi"><div class="lab">${k[0]}</div><div class="num">${k[1]}</div><div class="d ${k[3]}">${k[2]}</div></div>`).join('')}</div>
+  <div class="cols"><section class="tile"><h2>By channel</h2><div class="tw"><table><thead><tr><th>Channel</th><th class="num2">Followers</th><th class="num2">7 days</th><th class="num2">Day-30 target</th><th class="num2">Posts this week</th><th class="num2">Plan</th></tr></thead><tbody>${Object.keys(CH).map(k => { const c = CH[k], out = week().filter(p => p.ch === k && p.st === 'published').length; return `<tr><td>${chip(k)}</td><td class="num2">${c.fol}</td><td class="num2 ${c.d7 ? 'up' : ''}">${c.d7 ? '+' + c.d7 : '0'}</td><td class="num2">${c.tgt ?? 'not set'}</td><td class="num2">${out}</td><td class="num2">${c.plan}</td></tr>`; }).join('')}</tbody></table></div><p class="sub" style="margin-top:12px">"Not set" means the plan has no target for that channel. It is never shown as zero.</p></section>
+  <section class="tile"><h2>Where this week's 41 sign-ups came from</h2><div class="funnel">${src.map(f => `<div class="fn"><span>${f[0]}</span><div style="width:${Math.max(1.5, f[1] / 24 * 100)}%;background:${f[2]}"></div><b>${f[1]}</b></div>`).join('')}</div>
+    <div class="detail"><div class="note"><b>One definition, used everywhere</b><br>A sign-up from social is an OTP-verified account whose first visit carried one of our tracked links. Today the portal shows 0 on Home, 212 on Analytics (28 days, all sources) and 36 on the weekly report (7 days, all sources). They are different questions under the same label.</div>
+    <div class="note agent"><b>Worth a look</b><br>17 of 41 sign-ups arrived from AI assistants and none from social. That supports investing in answer-engine visibility alongside posting.</div></div></section></div>`;
+}
+function vChannels() {
+  const R = {
+    yt: S.ytBlocked ? ['bad','Blocked','Signed in to the wrong Google account','<button class="btn sm pri" data-act="fixyt">Fix</button>'] : ['agent','By agent','Uploads go through the agent\'s browser. The YouTube API needs Google verification.',''],
+    ig: ['agent','By agent','Posted through the agent\'s browser. The Instagram API is available and not connected.',''],
+    fb: ['agent','By agent','Posted through the agent\'s browser. The Facebook API is available and not connected.',''],
+    tg: ['plain','Outside the portal','A separate script posts here (23 posts in 7 days). The portal only reads it. The Telegram bot API is available.',''],
+    wa: ['acc','By hand','WhatsApp Channels have no posting API.',''],
+    li: ['acc','By hand','LinkedIn API approval is pending.',''],
+  };
+  return head('Channels', 'No channel posts through an API yet. Three of them could: Telegram, Facebook and Instagram.') +
+  `<section class="tile"><div class="tw"><table><thead><tr><th>Channel</th><th>How posts go out</th><th>What that means</th><th></th></tr></thead><tbody>${Object.keys(CH).map(k => `<tr><td>${chip(k)}</td><td><span class="pill ${R[k][0]}">${R[k][1]}</span></td><td>${R[k][2]}</td><td class="num2">${R[k][3]}</td></tr>`).join('')}</tbody></table></div></section>`;
+}
+function vWhy() {
+  const R = [
+    ['The inbox lists 32 items. Several are the same thing: every YouTube failure has one cause, and the same alert appears up to three times on Home.','Grouped by cause','Today shows 5 decisions. One row says "YouTube is signed in to the wrong Google account" and fixing it resumes all 6 stuck jobs.'],
+    ['Home showed "Loading…" for about 2 seconds because it waits for a 2.0 s inbox call. Lists return everything, with no paging.','Instant actions','Every action here updates the screen at once and can be undone for 6 seconds. In production: a precomputed inbox summary, paged lists and skeletons.'],
+    ['Sign-ups read 0 on Home, 212 on Analytics and 36 on the weekly report. Posts in 7 days read 0 on Home and 24 on All posts.','One definition','Results states each definition once, and every screen reads the same figure.'],
+    ['The calendar week was empty while the plan expects 25 posts.','Plan slots on the calendar','Outlined slots show what the plan expects. Click one to write it, or create all drafts in one action.'],
+    ['A post titled "linkedin post (to write)" with an empty caption was scheduled twice and failed twice. One Telegram post went out three times.','Checks that block','Placeholder titles, empty captions and duplicate captions cannot be sent. Try typing "to write" as a title in New post.'],
+    ['The manual queue says "due in the next 48 hours" and lists posts from 31 October.','Late is late','Each overdue post shows how many days late it is, with two choices: post it now or retire it.'],
+    ['The composer showed "35 / 63,206" on an empty caption and a plain text preview.','True previews','Each channel gets its own preview, limit and truncation point, and counters start at zero.'],
+    ['Words such as "partial" and "L1 recommend", and channel codes such as "in" and "@".','Plain words','Posted, By hand, Blocked, Needs approval. Channels are named in full.'],
+    ['The Claude page did not open: the sidebar item and the "needs your OK" pill both landed on Home.','Agent with steps and proof','Each job shows its steps, which ones are public, the risk level, and proof at the end. Approve job #129 to watch it run.'],
+    ['Daily jobs (approve, post by hand, OK the agent) needed a desktop.','A phone app for the daily loop','Switch to Phone app at the top. Same data, bottom tabs, sheets, large targets.'],
+  ];
+  return head('What changed and why', 'I reviewed the live portal on 25 November 2026. These are the ten things I would change first, and where to see each one working here.') +
+  `<section class="tile why"><div class="tw"><table><thead><tr><th>What I saw in the portal</th><th>What this concept does</th></tr></thead><tbody>${R.map(r => `<tr><td>${r[0]}</td><td><b>${r[1]}</b>${r[2]}</td></tr>`).join('')}</tbody></table></div></section>
+  <p style="color:var(--muted);margin:18px 6px 0;max-width:70ch">What the portal already does well and this concept keeps: one inbox, a person approving before anything public, proof on finished work, undo, and India time everywhere.</p>`;
+}
+const V = {today:vToday, inbox:vInbox, calendar:vCalendar, compose:vCompose, agent:vAgent, results:vResults, channels:vChannels, why:vWhy};
+const NAV = [['today','Today'],['inbox','Inbox'],['calendar','Calendar'],['compose','New post'],['agent','Agent',0,1],['results','Results',0,1],['channels','Channels',0,1],['why','What changed',0,1]];
+
+function render() {
+  const r = route(), n = needs().length, app = $('#app');
+  const keep = document.activeElement?.id, pos = document.activeElement?.selectionStart, sc = $('main', app)?.scrollTop || 0, same = app.dataset.r === r;
+  app.dataset.r = r;
+  app.innerHTML = `<header class="top"><button class="brand" data-act="go" data-arg="today"><i></i>Relay</button>
+      <nav class="pills" aria-label="Sections">${NAV.map(([k, l, ic, opt]) => `<button class="nav ${opt ? 'opt' : ''}" data-act="go" data-arg="${k}" ${r === k ? 'aria-current="page"' : ''}>${l}${k === 'inbox' && n ? `<span class="n">${n}</span>` : ''}</button>`).join('')}</nav>
+      <span class="sp"></span><div class="client"><span class="mark" style="background:#9E174F">TW</span><span class="nm">Techwave Academy</span></div></header>
+    <main id="main"><div class="wrap">${V[r]()}</div></main>
+    <nav class="tabs" aria-label="Sections">${[['today','Today','today'],['inbox','Inbox','inbox'],['compose','New','plus'],['calendar','Calendar','cal'],['more','More','more']].map(([k, l, ic]) => `<button class="${k === 'compose' ? 'plus' : ''}" data-act="${k === 'more' ? 'open' : 'go'}" data-arg="${k === 'more' ? 'more' : k}" aria-label="${l}" ${r === k || (k === 'more' && ['agent','results','channels','why'].includes(r)) ? 'aria-current="page"' : ''}>${ico(ic)}<span>${l}</span>${k === 'inbox' && n ? `<b class="n">${n}</b>` : ''}</button>`).join('')}</nav>
+    ${S.sheet ? `<div class="scrim" data-act="close"></div><aside class="drawer" role="dialog" aria-modal="true" aria-label="Details"><div class="x"><button class="btn sm" data-act="close">Close</button></div>${S.sheet === 'more' ? `<div class="detail"><h2>More</h2><div class="rows" style="margin-top:0">${NAV.slice(4).map(([k, l]) => `<div class="row click" data-act="go" data-arg="${k}"><div class="txt"><b>${l}</b></div><span class="ph">›</span></div>`).join('')}</div></div>` : detail(S.sheet)}</aside>` : ''}
+    <div class="toasts" role="status" aria-live="polite">${S.toasts.map((t, i) => `<div class="toast"><span>${esc(t.msg)}</span>${t.undo ? `<button data-act="undo" data-arg="${i}">Undo</button>` : ''}</div>`).join('')}</div>`;
+  if (same) $('main', app).scrollTop = sc;
+  if (keep && $('#' + keep)) { const el = $('#' + keep); el.focus(); if (pos != null && el.setSelectionRange) try { el.setSelectionRange(pos, pos); } catch {} }
+}
+const narrow = () => $('#app').clientWidth <= 640;
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if (!b || b.disabled) return;
+  const a = b.dataset.act, arg = b.dataset.arg;
+  if (a === 'undo') return S.toasts[+arg]?.undo?.();
+  if (a === 'pick') { if (e.target.closest('.acts')) return; S.sel = +arg; if (narrow()) S.sheet = S._list[S.sel].key; return render(); }
+  if (a === 'open' && b.classList.contains('row') && e.target.closest('.acts')) return;
+  ACT[a]?.(arg);
+});
+document.addEventListener('input', e => {
+  const d = S.draft; if (!d || !['ft','fc','fd','ftm'].includes(e.target.id)) return;
+  d.t = $('#ft').value; d.cap = $('#fc').value; d.d = +$('#fd').value; d.tm = $('#ftm').value || '18:00';
+  $('#side').innerHTML = side(d);
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && S.sheet) return ACT.close();
+  if (/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName) || e.metaKey || e.ctrlKey || e.altKey) return;
+  const k = e.key.toLowerCase();
+  if (k === 'c') { e.preventDefault(); return go('compose'); }
+  if (route() !== 'inbox' || !S._list?.length) return;
+  if (k === 'j') { S.sel = Math.min(S._list.length - 1, S.sel + 1); render(); }
+  if (k === 'k') { S.sel = Math.max(0, S.sel - 1); render(); }
+  if (k === 'enter') { const n = S._list[S.sel], a = n.primary; ACT[a[0]]?.(a[0] === 'open' ? n.key : n.id); }
+});
+addEventListener('hashchange', () => { S.sheet = null; if (route() !== 'compose') S.draft = null; render(); });
+const setView = v => { $('#stage').classList.toggle('phone', v === 'phone'); $('#vDesk').setAttribute('aria-pressed', v === 'desk'); $('#vPhone').setAttribute('aria-pressed', v === 'phone'); render(); };
+$('#vDesk').onclick = () => setView('desk'); $('#vPhone').onclick = () => setView('phone');
+$('#reset').onclick = () => { S = seed(); render(); };
+render();
+})();
+</script>
+
+</html>
