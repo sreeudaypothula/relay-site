@@ -199,7 +199,7 @@ i.posted{background:var(--ink)} i.ready{background:#8C8F97} i.you{background:var
 .field{display:flex;flex-direction:column;gap:6px;font-weight:500;font-size:14px}
 .in{border:1.5px solid var(--well);background:var(--tile);border-radius:14px;padding:10px 13px;width:100%;font-weight:400}
 .in:focus{outline:none;border-color:var(--ink)}
-textarea.in{min-height:140px;resize:vertical}
+textarea.in{min-height:230px;resize:vertical;line-height:1.5}
 .proof{display:inline-flex;gap:5px;align-items:center;font-size:13px;font-weight:500;color:var(--ok);background:var(--ok-soft);border-radius:999px;padding:2px 10px}
 .btnrow{display:flex;gap:8px;flex-wrap:wrap}
 
@@ -422,6 +422,15 @@ function weekState() {
   return {per, all, c};
 }
 
+// One prepared draft per channel, written from facts on Techwave's own pages. In the product the model writes these against the brand kit.
+const DRAFTS = {
+  li:['Why every Techwave course is free to learn', 'We made one decision early at Techwave Academy: learning is free. You pay only if you want the certificate.\n\nA student in a tier-3 town should not need a card to find out whether Excel or Python is for them. So all 30 courses, 1,900+ lessons, run in a phone browser, in Hinglish, Hindi and English, with an AI mentor inside every lesson.\n\nThe certificate is Rs 99. It unlocks at an 80% score and carries a QR code any employer can verify in one second.\n\n77 learners have earned one so far. If you hire freshers, scan one and tell us what you think.\n\nStart free: {link}'],
+  ig:['Excel in 60 seconds: remove duplicates with one formula', 'Duplicates in your sheet? One formula.\n\n=UNIQUE(A2:A500)\n\nNo menus, no helper column. Try it on your own file tonight and tell us how many rows disappeared.\n\nThe full Excel course is free, in Hinglish: {link}\n\n#ExcelTips #Excel #FreeCourse #TechwaveAcademy'],
+  wa:['Interview question of the day: VLOOKUP or XLOOKUP', 'Interview question of the day:\n\nWhat is the difference between VLOOKUP and XLOOKUP?\n\nThink about it, then reply with your answer. Ours comes tomorrow at 8 am.\n\nPractise both, free: {link}'],
+  tg:['SQL: the first query every analyst writes', 'The first query every analyst writes:\n\nSELECT name, city FROM learners WHERE city = \'Pune\';\n\nThree words do most of the work: SELECT, FROM, WHERE. Change the city and run it again.\n\nFree SQL course, with an AI mentor in every lesson: {link}'],
+  yt:['XLOOKUP in 40 seconds: stop getting #N/A #Shorts', 'VLOOKUP keeps giving #N/A? Use XLOOKUP. It searches both ways and does not break when you add a column.\n\nThe full Excel course is free: {link}\n\n#ExcelTips #Excel #Shorts'],
+  fb:['Certificate Friday: verified in one second', 'Certificate Friday.\n\nOne certificate, one QR code, verified in one second. It unlocks at an 80% score.\n\nThe course is free. The certificate is Rs 99.\n\nStart today: {link}'],
+};
 /* ---------- actions: every change is instant and can be undone ---------- */
 function toast(msg, undo) { const t = {id:Math.random(), msg, undo}; S.toasts.push(t); render(); setTimeout(() => { S.toasts = S.toasts.filter(x => x !== t); render(); }, undo ? 6000 : 3600); }
 function change(msg, fn) { const snap = JSON.stringify({ytBlocked:S.ytBlocked, posts:S.posts, jobs:S.jobs, tasks:S.tasks, stuck:S.stuck, camps:S.camps}); fn(); toast(msg, () => { Object.assign(S, JSON.parse(snap)); S.toasts = []; render(); }); }
@@ -447,7 +456,7 @@ const ACT = {
   ghost: arg => { const [k, d] = arg.split(':'); if (k === 'yt' && S.ytBlocked) return ACT.fixyt(); S.draft = {t:'', cap:'', chs:[k], d:+d, tm:'18:00'}; go('compose'); },
   editpost: id => { const p = post(id); S.sheet = null; S.draft = {id:p.id, t:p.t, cap:p.cap, chs:[p.ch], d:Math.max(p.d, TODAY), tm:p.tm}; go('compose'); },
   plat: k => { const d = S.draft; d.chs = d.chs.includes(k) ? d.chs.filter(x => x !== k) : [...d.chs, k]; render(); },
-  aidraft: () => { const d = S.draft; const topic = d.t.trim() && !/to write/i.test(d.t) ? d.t.trim() : 'This week\'s lesson'; d.cap = `${topic}: here is the one thing to remember.\n\nTry it on your own file for two minutes, then tell us what happened.\n\nThe full course is free: {link}`; render(); toast('Sample draft added. In the product this comes from the model, checked against the brand kit.'); },
+  aidraft: () => { const d = S.draft, k = d.chs[0] || 'li', dr = DRAFTS[k], ph = !d.t.trim() || /to write|tbd|todo|untitled|^draft for/i.test(d.t); if (ph) d.t = dr[0]; d.cap = dr[1]; render(); toast(`Drafted for ${CH[k].name} from Techwave's brand kit. Edit anything before sending.`); },
   send: () => { const d = S.draft, res = checks(d); if (res.some(c => c[0] === 'block')) return; change(d.chs.length > 1 ? `${d.chs.length} posts sent for approval.` : 'Sent for approval.', () => { let nid = Math.max(...S.posts.map(p => p.id)) + 1; if (d.id) S.posts = S.posts.filter(p => p.id !== d.id); d.chs.forEach(k => S.posts.push({id:nid++, t:d.t.trim(), ch:k, d:d.d, tm:d.tm, st:'review', cap:d.cap})); S.draft = null; }); toInbox('appr'); },
   logday: id => { const v = k => Math.max(0, +($('#' + k)?.value || 0)); const d = {spend:v('lspend'), clicks:v('lclicks'), signups:v('lsign')}; if (!d.spend) { $('#lspend')?.focus(); return toast('Enter what was spent.'); } S.sheet = null; change('Results logged. The guardrail is updated.', () => { S.camps.find(c => c.id == id).days.push(d); }); },
   score: arg => { const [k, v] = arg.split(':'); S.scores[k] = +v; render(); },
